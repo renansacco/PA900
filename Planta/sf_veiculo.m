@@ -24,7 +24,7 @@ function [sys, x0, str, ts] = sf_veiculo(t, x, u, flag, X0, params)
             sizes.NumDiscStates  = 0;
             sizes.NumOutputs     = 7;
             sizes.NumInputs      = 2;
-            sizes.DirFeedthrough = 1;
+            sizes.DirFeedthrough = 0;
             sizes.NumSampleTimes = 1;
 
             sys = simsizes(sizes);

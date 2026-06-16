@@ -43,7 +43,7 @@ Model {
       UnitExpr		      "inherit"
     }
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.82"
+    ComputedModelVersion    "1.83"
     NumModelReferences	    0
     NumTestPointedSignals   18
     TestPointedSignal {
@@ -421,9 +421,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "renan"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Mon Oct 20 20:39:55 2025"
-  RTWModifiedTimeStamp	  682893594
-  ModelVersionFormat	  "1.%<AutoIncrement:82>"
+  LastModifiedDate	  "Wed Jun 10 14:14:32 2026"
+  RTWModifiedTimeStamp	  703001455
+  ModelVersionFormat	  "1.%<AutoIncrement:83>"
   SampleTimeColors	  off
   SampleTimeAnnotations	  on
   LibraryLinkDisplay	  "disabled"
@@ -2542,8 +2542,8 @@ Model {
   }
   System {
     Name		    "Controller"
-    Location		    [1913, -7, 3847, 1047]
-    Open		    on
+    Location		    [-7, -7, 1927, 1047]
+    Open		    off
     PortBlocksUseCompactNotation off
     SetExecutionDomain	    off
     ExecutionDomainType	    "Deduce"
@@ -2557,7 +2557,7 @@ Model {
     TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
     TiledPageScale	    1
     ShowPageBoundaries	    off
-    ZoomFactor		    "80"
+    ZoomFactor		    "40"
     ReportName		    "simulink-default.rpt"
     SIDHighWatermark	    "486"
     SimulinkSubDomain	    "Simulink"
@@ -3165,8 +3165,8 @@ Model {
       ContentPreviewEnabled   on
       System {
 	Name			"Controle_Curva"
-	Location		[1913, -7, 3847, 1047]
-	Open			on
+	Location		[108, 208, 2042, 1262]
+	Open			off
 	PortBlocksUseCompactNotation off
 	SetExecutionDomain	off
 	ExecutionDomainType	"Deduce"
@@ -3180,7 +3180,7 @@ Model {
 	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
 	TiledPageScale		1
 	ShowPageBoundaries	off
-	ZoomFactor		"61"
+	ZoomFactor		"35"
 	SimulinkSubDomain	"Simulink"
 	Block {
 	  BlockType		  Inport
@@ -4809,7 +4809,7 @@ Model {
 	  BackgroundColor	  "[0.901961, 0.901961, 1.000000]"
 	  DropShadow		  on
 	  AnnotationType	  "area_annotation"
-	  ZOrder		  280
+	  ZOrder		  283
 	  FontSize		  12
 	}
 	Annotation {
@@ -4823,7 +4823,7 @@ Model {
 	  BackgroundColor	  "[0.901961, 0.901961, 1.000000]"
 	  DropShadow		  on
 	  AnnotationType	  "area_annotation"
-	  ZOrder		  281
+	  ZOrder		  284
 	  FontSize		  12
 	}
 	Annotation {
@@ -4837,7 +4837,7 @@ Model {
 	  BackgroundColor	  "[0.901961, 0.901961, 1.000000]"
 	  DropShadow		  on
 	  AnnotationType	  "area_annotation"
-	  ZOrder		  282
+	  ZOrder		  285
 	  FontSize		  12
 	}
       }
@@ -5498,8 +5498,8 @@ Model {
       ContentPreviewEnabled   on
       System {
 	Name			"LQR - Entry Straight"
-	Location		[1913, -7, 3847, 1047]
-	Open			on
+	Location		[108, 208, 2042, 1262]
+	Open			off
 	PortBlocksUseCompactNotation off
 	SetExecutionDomain	off
 	ExecutionDomainType	"Deduce"
@@ -5513,7 +5513,7 @@ Model {
 	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
 	TiledPageScale		1
 	ShowPageBoundaries	off
-	ZoomFactor		"132"
+	ZoomFactor		"66"
 	SimulinkSubDomain	"Simulink"
 	Block {
 	  BlockType		  Inport
@@ -7314,7 +7314,7 @@ Model {
 	  BackgroundColor	  "[0.901961, 0.901961, 1.000000]"
 	  DropShadow		  on
 	  AnnotationType	  "area_annotation"
-	  ZOrder		  170
+	  ZOrder		  173
 	  FontSize		  12
 	}
 	Annotation {
@@ -7327,7 +7327,7 @@ Model {
 	  BackgroundColor	  "[0.901961, 0.901961, 1.000000]"
 	  DropShadow		  on
 	  AnnotationType	  "area_annotation"
-	  ZOrder		  169
+	  ZOrder		  172
 	  FontSize		  12
 	}
 	Annotation {
@@ -7341,7 +7341,7 @@ Model {
 	  BackgroundColor	  "[0.901961, 0.901961, 1.000000]"
 	  DropShadow		  on
 	  AnnotationType	  "area_annotation"
-	  ZOrder		  171
+	  ZOrder		  174
 	  FontSize		  12
 	}
       }
@@ -7358,8 +7358,8 @@ Model {
       ContentPreviewEnabled   on
       System {
 	Name			"LQR - Keep Straight"
-	Location		[1913, -7, 3847, 1047]
-	Open			on
+	Location		[108, 208, 2042, 1262]
+	Open			off
 	PortBlocksUseCompactNotation off
 	SetExecutionDomain	off
 	ExecutionDomainType	"Deduce"
@@ -7373,7 +7373,7 @@ Model {
 	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
 	TiledPageScale		1
 	ShowPageBoundaries	off
-	ZoomFactor		"198"
+	ZoomFactor		"99"
 	SimulinkSubDomain	"Simulink"
 	Block {
 	  BlockType		  Inport
@@ -9089,7 +9089,7 @@ Model {
 	  BackgroundColor	  "[0.901961, 0.901961, 1.000000]"
 	  DropShadow		  on
 	  AnnotationType	  "area_annotation"
-	  ZOrder		  147
+	  ZOrder		  148
 	  FontSize		  12
 	}
 	Annotation {
@@ -10020,7 +10020,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      1091
+      ZOrder		      1095
       FontSize		      12
     }
     Annotation {
@@ -10034,7 +10034,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      1090
+      ZOrder		      1094
       FontSize		      12
     }
     Annotation {
@@ -10081,7 +10081,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      1089
+      ZOrder		      1093
       FontSize		      12
     }
     Annotation {
@@ -10095,7 +10095,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      1088
+      ZOrder		      1092
       FontSize		      12
     }
   }
@@ -10122,9 +10122,6 @@ Stateflow {
     screen		    [1 1 3200 1200 1.25]
     treeNode		    [0 3 0 0]
     viewObj		    2
-    visible		    1
-    subviewS {
-    }
     ssIdHighWaterMark	    43
     decomposition	    CLUSTER_CHART
     updateMethod	    DISCRETE

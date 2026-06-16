@@ -1,3 +1,4 @@
+
 function Xp = dinamica_veiculo(X, U, p)
 % DINAMICA_VEICULO  Bicycle-model vehicle dynamics (with optional implement).
 %
@@ -17,19 +18,19 @@ function Xp = dinamica_veiculo(X, U, p)
 %       omega_m_ref - steering motor speed reference [rad/s]
 %       vx          - longitudinal velocity [m/s]
 %
-%   Params (struct p):
+%   Params (struct p) — nomes compativeis com param_MF6713.mat:
 %       Cf   - front axle cornering stiffness [N/rad]
 %       Cr   - rear axle cornering stiffness [N/rad]
 %       Ch   - implement hitch cornering stiffness [N/rad] (0 = no implement)
 %       Lf   - distance CG to front axle [m]
 %       Lr   - distance CG to rear axle [m]
 %       Lh   - distance CG to hitch point [m]
-%       Lcp  - distance CG to control point [m]
+%       L_cp - distance CG to control point [m]
 %       Izz  - yaw moment of inertia [kg*m^2]
 %       m    - vehicle mass [kg]
 %       tau  - steering actuator time constant [s]
-%       km   - steering motor gain [rad/(rad/s)]
-%       kd   - steering gear ratio [-]
+%       k_m  - steering motor gain [rad/(rad/s)]
+%       k_d  - steering gear ratio [-]
 %
 %   Output:
 %       Xp - state derivative (7x1 column vector)
@@ -57,12 +58,12 @@ function Xp = dinamica_veiculo(X, U, p)
     Lf  = p.Lf;
     Lr  = p.Lr;
     Lh  = p.Lh;
-    Lcp = p.Lcp;
+    Lcp = p.L_cp;
     Izz = p.Izz;
     m   = p.m;
     tau = p.tau;
-    km  = p.km;
-    kd  = p.kd;
+    km  = p.k_m;
+    kd  = p.k_d;
 
     % --- Kinematics ---
     xp   = vx.*cos(psi) - (Lcp.*r + vy).*sin(psi);

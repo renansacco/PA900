@@ -1,5 +1,11 @@
+%% Paths
+ctrlDir = fileparts(mfilename('fullpath'));
+addpath(fullfile(ctrlDir, 'buses'));
+addpath(fullfile(ctrlDir, 'enums'));
+addpath(fullfile(ctrlDir, 'gains'));
+
 %% Buses
-Simulink.importExternalCTypes('mg900_model_types.h');
+Simulink.importExternalCTypes(fullfile(ctrlDir, 'Controller_ert_rtw', 'mg900_model_types.h'));
 
 Bus_Controlador_UserInput
 Bus_Controlador
@@ -9,16 +15,16 @@ controllerMeasurementBus
 controllerSteerCalibrationBus
 controllerInputGuidanceBus
 
-%% Parametros de calibração da direção
+%% Parametros de calibraï¿½ï¿½o da direï¿½ï¿½o
 steerCalibration = Simulink.Parameter;
 steerCalibration.DataType = 'Bus: controllerSteerCalibrationBus_t';
 steerCalibration.Value = struct('leftValue',0,'rightValue',0,'centerValue', 0,'isCalibrated',false, 'deadZone', 0);
 steerCalibration.CoderInfo.StorageClass = 'Model default';
 
-%% Parametros do usuário
+%% Parametros do usuï¿½rio
 userParameters = Simulink.Parameter;
 userParameters.DataType = 'Bus: controllerParameterBus_t';
-userParameters.Value = struct('modelPlant', 1, 'vehicleMode', ModoVeiculo.None, 'straightAggressiveness', 4, 'curveAggressiveness', 4, 'isCurveMode', false);
+userParameters.Value = struct('modelPlant', 1, 'vehicleMode', ModoVeiculo.None, 'straightAggressiveness', 4, 'curveAggressiveness', 1, 'isCurveMode', false);
 userParameters.CoderInfo.StorageClass = 'Model default';
 
 
@@ -45,17 +51,17 @@ param_cme = load('Curva_Gains_Final.mat');
 %Controlador.Value.Curva.Gains = Simulink.Parameter;
 controllerGainsCurve = param_cme.CME_Gains;
 
-% Saturação da velocidade angular de referência
+% Saturaï¿½ï¿½o da velocidade angular de referï¿½ncia
 Controlador.Value.Curva.omegam_sat = single(15);
 
-% Distância 'Delta' do lookahead
+% Distï¿½ncia 'Delta' do lookahead
 Controlador.Value.Curva.Delta = single(4);
 
 %% Controlador 'Keep'
-param_keep_trator = load('gains/Keep_Tractor_Sem_Implemento.mat');
-param_keep_sulcon = load('gains/Keep_Tractor_Implemento_Leve.mat');
-param_keep_sulcon_3 = load('gains/Keep_Tractor_Implemento_Medio.mat');
-param_keep_sulcon_5 = load('gains/Keep_Tractor_Implemento_Pesado.mat');
+param_keep_trator = load('Keep_Tractor_Sem_Implemento.mat');
+param_keep_sulcon = load('Keep_Tractor_Implemento_Leve.mat');
+param_keep_sulcon_3 = load('Keep_Tractor_Implemento_Medio.mat');
+param_keep_sulcon_5 = load('Keep_Tractor_Implemento_Pesado.mat');
 
 Gains = cat(4, param_keep_trator.Gains_Keep_Tractor, param_keep_sulcon.Gains_Keep_Tractor, param_keep_sulcon_3.Gains_Keep_Tractor, param_keep_sulcon_5.Gains_Keep_Tractor);
 

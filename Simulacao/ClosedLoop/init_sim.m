@@ -8,24 +8,29 @@
 clear; close all;
 
 %% Parametros do veiculo
-load(fullfile(fileparts(mfilename('fullpath')), '..', '..', 'Planta', 'params', 'param_MF6713.mat'));
+params = load('param_MF6713.mat');
+
+%% Guidance
+Ts_guidance = 0.05;
+tmp = load('taipas_boeck.mat');
+%wps = [tmp.guias{10}.x, tmp.guias{10}.y];
+wps = tmp.guias{20};
 
 %% Condicoes iniciais da planta
 % X0 = [x, y, psi, r, vy, omega_m, delta]
 X0 = zeros(7, 1);
-X0(2) = 1.0;  % erro lateral inicial de 1m
+X0(1) = wps.x(1);
+X0(2) = wps.y(1);
+X0(3) = atan2(wps.y(2) - wps.y(1), wps.x(2) - wps.x(1));  % psi0 alinhado com a guia
 
 %% Velocidade longitudinal (m/s)
 vx = 2.0;
 
-%% Trajetoria
-load(fullfile(fileparts(mfilename('fullpath')), '..', '..', 'Guidance', 'trajetorias', 'reta_100m.mat'));
-guidanceState = guidance_init(wps_reta);
-
 %% Parametros do Controller (buses, gains, etc.)
-run(fullfile(fileparts(mfilename('fullpath')), '..', '..', 'Controller', 'Param_Controller.m'));
+Param_Controller;
 
 %% Tempo de simulacao
-Tsim = 50;  % s
+pathLen = sum(sqrt(diff(wps.x).^2 + diff(wps.y).^2));
+Tsim = ceil(pathLen / vx) + 10;
 
-fprintf('Closed-loop: vx=%.1f m/s | Tsim=%.0f s | traj=%s\n', vx, Tsim, 'reta_100m');
+fprintf('Closed-loop: vx=%.1f m/s | Tsim=%.0f s | pathLen=%.0f m\n', vx, Tsim, pathLen);

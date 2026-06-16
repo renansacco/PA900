@@ -8,7 +8,7 @@
 clear; close all;
 
 %% Parametros do veiculo (alterar conforme necessario)
-load(fullfile(fileparts(mfilename('fullpath')), '..', '..', 'Planta', 'params', 'param_MF6713.mat'));
+params = load('param_MF6713.mat');
 
 %% Condicoes iniciais
 % X0 = [x, y, psi, r, vy, omega_m, delta]

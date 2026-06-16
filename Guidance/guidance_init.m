@@ -38,6 +38,7 @@ function state = guidance_init(waypoints, varargin)
     state.yCoefs = zeros(1,4);  % [a, b, c, d] for y
     state.isReady = false;
     state.status  = 0;          % 0=Inactive, 1=Active, 2=EndOfPath, 3=Diverged
+    state.lastAlpha = 0;
 
     % Config
     state.cfg.searchRadius      = p.Results.searchRadius;

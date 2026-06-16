@@ -39,7 +39,16 @@ function [out, state] = guidance_step(pose, state)
         return;
     end
     if state.status == 2 || state.status == 3  % EndOfPath or Diverged
-        out.status = state.status;
+        alpha = state.lastAlpha;
+        px = pose(1); py = pose(2); psi = pose(3);
+        wx = state.wps.x(:); wy = state.wps.y(:);
+        ex = px - wx(end); ey = py - wy(end);
+        out.lateralError = -ex*sin(alpha) + ey*cos(alpha);
+        out.psiError     = wrapToPi(psi - alpha);
+        out.alpha        = alpha;
+        out.curvature    = 0;
+        out.lineIndex    = state.wpIndex;
+        out.status       = state.status;
         return;
     end
 
@@ -138,6 +147,7 @@ function [out, state] = guidance_step(pose, state)
     end
 
     % --- Output ---
+    state.lastAlpha  = alpha;
     out.lateralError = lateralError;
     out.psiError     = psiError;
     out.alpha        = alpha;
