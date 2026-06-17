@@ -11,10 +11,13 @@ function [sys, x0, str, ts] = sf_veiculo(t, x, u, flag, X0, params)
 %
 %   States (7 continuous):  [x, y, psi, r, vy, omega_m, delta]
 %   Inputs  (2):            [omega_m_ref, vx]
-%   Outputs (7):            all states
+%   Outputs (8):            all states + sideslip [rad]
 %
 %   Date:   2026-06-09
 %   Author: Renan / Claude
+
+    persistent vx_last
+    if isempty(vx_last), vx_last = 2.0; end
 
     switch flag
 
@@ -22,7 +25,7 @@ function [sys, x0, str, ts] = sf_veiculo(t, x, u, flag, X0, params)
             sizes = simsizes;
             sizes.NumContStates  = 7;
             sizes.NumDiscStates  = 0;
-            sizes.NumOutputs     = 7;
+            sizes.NumOutputs     = 8;
             sizes.NumInputs      = 2;
             sizes.DirFeedthrough = 0;
             sizes.NumSampleTimes = 1;
@@ -33,10 +36,12 @@ function [sys, x0, str, ts] = sf_veiculo(t, x, u, flag, X0, params)
             ts  = [0 0];   % continuous sample time
 
         case 1  % --- Derivatives ---
+            vx_last = u(2);
             sys = dinamica_veiculo(x, u, params);
 
         case 3  % --- Outputs ---
-            sys = x;
+            beta = atan2(x(5), vx_last);
+            sys = [x; beta];
 
         case {2, 4, 9}  % Unused flags
             sys = [];

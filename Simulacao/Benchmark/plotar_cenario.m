@@ -8,10 +8,22 @@
 function plotar_cenario(r, ctrl_label)
     if nargin < 2, ctrl_label = ''; end
 
+    if isnumeric(r)
+        tmp = load('benchmark_results.mat');
+        r = tmp.results(r);
+    end
+
     out = r.out;
     wps = r.wps;
 
     titulo = sprintf('%s | %s | vx=%.1f m/s', r.traj_name, r.ic_name, r.vx);
+    if isfield(r, 'useCourse')
+        if r.useCourse
+            titulo = sprintf('%s | course', titulo);
+        else
+            titulo = sprintf('%s | heading', titulo);
+        end
+    end
     if ~isempty(ctrl_label)
         titulo = sprintf('[%s] %s', ctrl_label, titulo);
     end
@@ -29,8 +41,34 @@ function plotar_cenario(r, ctrl_label)
     vx_sig      = out.vx.signals.values;
     xy          = out.r_IC.signals.values;
 
-    psi_cont     = rad2deg(unwrap(deg2rad(psi_deg)));
-    psi_ref_cont = rad2deg(unwrap(deg2rad(psi_ref_deg)));
+    % Sideslip e course
+    has_beta = false;
+    try
+        beta = out.beta.signals.values;
+        has_beta = true;
+    catch
+    end
+
+    % Alpha do guidance
+    has_alpha = false;
+    try
+        alpha_guid = out.alpha.signals.values;
+        has_alpha = true;
+    catch
+    end
+
+    psi_rad = deg2rad(psi_deg);
+    psi_ref_rad = deg2rad(psi_ref_deg);
+
+    % Heading e course continuos (unwrap)
+    psi_cont     = rad2deg(unwrap(psi_rad));
+    psi_ref_cont = rad2deg(unwrap(psi_ref_rad));
+    if has_beta
+        course_cont = rad2deg(unwrap(psi_rad + beta));
+    end
+    if has_alpha
+        alpha_cont = rad2deg(unwrap(alpha_guid));
+    end
 
     %% Figura 1 — Trajetoria
     figure('Name', sprintf('Trajetoria — %s', titulo));
@@ -41,53 +79,97 @@ function plotar_cenario(r, ctrl_label)
     legend('Location', 'best');
     title(titulo, 'Interpreter', 'none');
 
-    %% Figura 2 — Controle (4x2 subplots)
+    %% Figura 2 — Controle (5x2 subplots)
     figure('Name', sprintf('Controle — %s', titulo));
     sgtitle(titulo, 'Interpreter', 'none');
 
-    subplot(4,2,1);
+    subplot(5,2,1);
     plot(t, e); grid on;
     ylabel('e [m]');
     title('Erro lateral');
 
-    subplot(4,2,2);
-    plot(t, psi_cont, t, psi_ref_cont, '--'); grid on;
+    subplot(5,2,2);
+    plot(t, psi_cont, 'DisplayName', 'heading'); hold on;
+    plot(t, psi_ref_cont, '--', 'DisplayName', 'psi_{ref}');
+    if has_beta
+        plot(t, course_cont, ':', 'LineWidth', 1.5, 'DisplayName', 'course');
+    end
+    if has_alpha
+        plot(t, alpha_cont, '-.', 'DisplayName', 'alpha');
+    end
+    grid on;
     ylabel('[deg]');
-    legend('\psi', '\psi_{ref}', 'Location', 'best');
-    title('Heading');
+    legend('Location', 'best');
+    title('Heading / Course / PsiRef / Alpha');
 
-    subplot(4,2,3);
-    plot(t, psi_cont - psi_ref_cont); grid on;
+    subplot(5,2,3);
+    psi_err = rad2deg(wrapToPi(psi_rad - psi_ref_rad));
+    plot(t, psi_err, 'DisplayName', 'heading - psi_{ref}'); hold on;
+    if has_beta
+        course_err = rad2deg(wrapToPi(psi_rad + beta - psi_ref_rad));
+        plot(t, course_err, ':', 'LineWidth', 1.5, 'DisplayName', 'course - psi_{ref}');
+    end
+    grid on;
     ylabel('[deg]');
+    legend('Location', 'best');
     title('Erro angular');
 
-    subplot(4,2,4);
-    plot(t, r_yaw); grid on;
-    ylabel('r [rad/s]');
-    title('Yaw rate');
-
-    subplot(4,2,5);
-    plot(t, omegam, t, omegam_ref, '--'); grid on;
+    subplot(5,2,4);
+    plot(t, r_yaw, 'DisplayName', 'r'); hold on;
+    plot(t, curvature .* vx_sig, '--', 'DisplayName', 'kappa*vx');
+    grid on;
     ylabel('[rad/s]');
-    legend('\omega_m', '\omega_{m,ref}', 'Location', 'best');
+    legend('Location', 'best');
+    title('Yaw rate vs referencia');
+
+    subplot(5,2,5);
+    plot(t, omegam, 'DisplayName', 'omega_m'); hold on;
+    plot(t, omegam_ref, '--', 'DisplayName', 'omega_{m,ref}');
+    grid on;
+    ylabel('[rad/s]');
+    legend('Location', 'best');
     title('Velocidade angular motor');
 
-    subplot(4,2,6);
+    subplot(5,2,6);
     plot(t, delta_deg); grid on;
-    ylabel('\delta [deg]');
+    ylabel('[deg]');
     title('Angulo de estercamento');
 
-    subplot(4,2,7);
-    plot(out.curvature.time, curvature); grid on;
+    subplot(5,2,7);
+    plot(t, curvature); grid on;
     ylabel('\kappa [1/m]');
     title('Curvatura');
-    xlabel('Tempo [s]');
 
-    subplot(4,2,8);
-    plot(out.vx.time, vx_sig); grid on;
+    subplot(5,2,8);
+    plot(t, vx_sig); grid on;
     ylabel('v_x [m/s]');
     title('Velocidade longitudinal');
-    xlabel('Tempo [s]');
+
+    if has_beta
+        Lr = 1.0;  % default, sera sobrescrito se params disponivel
+        try
+            p = load('param_MF6713.mat');
+            Lr = p.Lr;
+        catch
+        end
+
+        subplot(5,2,9);
+        plot(t, rad2deg(beta), 'DisplayName', 'beta real'); hold on;
+        beta_kin = atan(Lr * curvature);
+        beta_gyro = atan(Lr * r_yaw ./ vx_sig);
+        plot(t, rad2deg(beta_kin), '--', 'DisplayName', 'atan(Lr*kappa)');
+        plot(t, rad2deg(beta_gyro), ':', 'LineWidth', 1.5, 'DisplayName', 'atan(Lr*r/vx)');
+        grid on;
+        ylabel('[deg]');
+        legend('Location', 'best');
+        title('Sideslip');
+
+        subplot(5,2,10);
+        vy_real = vx_sig .* tan(beta);
+        plot(t, vy_real); grid on;
+        ylabel('v_y [m/s]');
+        title('Velocidade lateral');
+    end
 
     %% Figura 3 — Metricas resumo
     if ~isempty(r.metrics)
@@ -118,4 +200,8 @@ function plotar_cenario(r, ctrl_label)
         xlabel('Valor');
         title('Metricas');
     end
+end
+
+function a = wrapToPi(a)
+    a = mod(a + pi, 2*pi) - pi;
 end

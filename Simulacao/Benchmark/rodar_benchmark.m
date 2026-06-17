@@ -10,6 +10,7 @@ clear; close all;
 %% Config
 velocidades = [2.0];  % m/s
 t_descarte  = 2.0;              % s — descarte para metricas de regime
+useCourse   = 0;                % 0 = heading, 1 = course (psi+beta) no lookahead
 
 condicoes_iniciais = {
     'alinhado',     0,    0;      % nome, offset_lateral [m], erro_heading [deg]
@@ -90,6 +91,7 @@ for it = 1:n_trajs
             r_entry.ic_offset  = ic_offset;
             r_entry.ic_heading = ic_heading;
             r_entry.vx         = vx;
+            r_entry.useCourse  = useCourse;
             r_entry.wps        = wps;
             r_entry.metrics    = metrics;
             r_entry.out        = out;
