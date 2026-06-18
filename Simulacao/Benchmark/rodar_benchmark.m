@@ -7,10 +7,15 @@
 
 clear; close all;
 
+%% Paths
+benchDir = fileparts(mfilename('fullpath'));
+addpath(fullfile(benchDir, 'trajetorias'));
+
 %% Config
-velocidades = [2.0];  % m/s
+velocidades = [1.0, 2.0, 3.0];  % m/s
 t_descarte  = 2.0;              % s — descarte para metricas de regime
-useCourse   = 0;                % 0 = heading, 1 = course (psi+beta) no lookahead
+useCourse   = 1;                % 0 = heading, 1 = course (psi+beta) no lookahead
+wpDistance_guidance = 3.0;       % resample waypoints (igual ao embarcado). 0 = sem resample
 
 condicoes_iniciais = {
     'alinhado',     0,    0;      % nome, offset_lateral [m], erro_heading [deg]
@@ -19,7 +24,7 @@ condicoes_iniciais = {
 };
 
 %% Carrega trajetorias
-tmp = load('benchmark_trajs.mat');
+tmp = load(fullfile(benchDir, 'trajetorias', 'benchmark_trajs.mat'));
 trajs = tmp.trajs;
 
 %% Carrega parametros do veiculo e controller
@@ -52,8 +57,13 @@ for it = 1:n_trajs
             ic_offset  = condicoes_iniciais{ic, 2};
             ic_heading = condicoes_iniciais{ic, 3};
 
-            %% Trajetoria
-            wps = trajs(it).wps;
+            %% Trajetoria (resample como o embarcado)
+            wps_original = trajs(it).wps;
+            if wpDistance_guidance > 0
+                wps = resample_waypoints(wps_original, wpDistance_guidance);
+            else
+                wps = wps_original;
+            end
 
             %% Condicao inicial (alpha0 via spline do guidance, no 2o wp)
             state0 = guidance_init(wps);
@@ -92,7 +102,9 @@ for it = 1:n_trajs
             r_entry.ic_heading = ic_heading;
             r_entry.vx         = vx;
             r_entry.useCourse  = useCourse;
+            r_entry.wpDistance = wpDistance_guidance;
             r_entry.wps        = wps;
+            r_entry.wps_original = wps_original;
             r_entry.metrics    = metrics;
             r_entry.out        = out;
 
@@ -106,7 +118,7 @@ for it = 1:n_trajs
 end
 
 %% Salva resultados
-outFile = fullfile(fileparts(mfilename('fullpath')), 'benchmark_results.mat');
+outFile = fullfile(fileparts(mfilename('fullpath')), 'benchmark_results_course.mat');
 save(outFile, 'results');
 fprintf('\nSalvo: benchmark_results.mat (%d cenarios)\n', numel(results));
 

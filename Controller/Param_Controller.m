@@ -24,7 +24,7 @@ steerCalibration.CoderInfo.StorageClass = 'Model default';
 %% Parametros do usu�rio
 userParameters = Simulink.Parameter;
 userParameters.DataType = 'Bus: controllerParameterBus_t';
-userParameters.Value = struct('modelPlant', 1, 'vehicleMode', ModoVeiculo.None, 'straightAggressiveness', 4, 'curveAggressiveness', 1, 'isCurveMode', false);
+userParameters.Value = struct('modelPlant', 1, 'vehicleMode', ModoVeiculo.None, 'straightAggressiveness', 4, 'curveAggressiveness', 4, 'isCurveMode', false);
 userParameters.CoderInfo.StorageClass = 'Model default';
 
 

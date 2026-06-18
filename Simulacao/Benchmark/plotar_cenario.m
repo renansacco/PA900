@@ -72,8 +72,17 @@ function plotar_cenario(r, ctrl_label)
 
     %% Figura 1 — Trajetoria
     figure('Name', sprintf('Trajetoria — %s', titulo));
-    plot(wps.x, wps.y, 'k--', 'DisplayName', 'Referencia'); hold on;
-    plot(xy(:,1), xy(:,2), 'b', 'LineWidth', 1.5, 'DisplayName', 'Veiculo');
+    if isfield(r, 'wps_original')
+        plot(r.wps_original.x, r.wps_original.y, 'k.--', ...
+            'DisplayName', 'Waypoints originais'); hold on;
+        plot(wps.x, wps.y, 'ms', 'MarkerSize', 4, ...
+            'DisplayName', sprintf('Resampled (%.1fm)', r.wpDistance));
+    else
+        plot(wps.x, wps.y, 'k.--', 'DisplayName', 'Waypoints'); hold on;
+    end
+    [sx, sy] = avaliar_bspline(wps, 30);
+    plot(sx, sy, 'r-', 'LineWidth', 1.5, 'DisplayName', 'B-spline (guidance)');
+    plot(xy(:,1), xy(:,2), 'b', 'LineWidth', 1, 'DisplayName', 'Veiculo');
     axis equal; grid on;
     xlabel('x [m]'); ylabel('y [m]');
     legend('Location', 'best');
