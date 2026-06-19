@@ -24,6 +24,11 @@ controllerElement(4).Description = 'Velocidade linear frontal do veículo, em m/s
 controllerElement(4).DataType = 'single';
 controllerElement(4).Dimensions = 1;
 
+controllerElement(5) = Simulink.BusElement;
+controllerElement(5).Name = 'sideslip';
+controllerElement(5).Description = 'Angulo de escorregamento (course=psi+sideslip) em rad';
+controllerElement(5).DataType = 'single';
+controllerElement(5).Dimensions = 1;
 
 controllerMeasurementBus_t = Simulink.Bus;
 controllerMeasurementBus_t.Elements = controllerElement;

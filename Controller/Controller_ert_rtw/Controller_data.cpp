@@ -3,9 +3,9 @@
 //
 // Code generated for Simulink model 'Controller'.
 //
-// Model version                  : 1.82
+// Model version                  : 1.87
 // Simulink Coder version         : 9.2 (R2019b) 18-Jul-2019
-// C/C++ source code generated on : Mon Oct 20 20:40:14 2025
+// C/C++ source code generated on : Fri Jun 19 17:34:39 2026
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: Intel->x86-64 (Windows64)
@@ -31,19 +31,7 @@ const ConstB_Controller_T Controller_ConstB = {
     1U,
     2U
   }
-  ,                                    // '<S12>/Data Type Conversion6'
-
-  {
-    1U,
-    2U,
-    3U,
-    4U,
-    5U,
-    6U,
-    7U,
-    8U
-  }
-  // '<S9>/Data Type Conversion1'
+  // '<S12>/Data Type Conversion6'
 };
 
 // Block parameters (default storage)
@@ -62,7 +50,6 @@ P_Controller_T ControladorModelClass::Controller_P = {
   // Variable: userParameters
   //  Referenced by:
   //    '<Root>/Constant1'
-  //    '<S9>/Constant6'
   //    '<S12>/Constant4'
   //    '<S12>/Constant6'
   //    '<S13>/Constant1'
@@ -72,24 +59,13 @@ P_Controller_T ControladorModelClass::Controller_P = {
     1U,
     ModoVeiculo_None,
     4U,
-    4U,
+    1U,
     0
   }
 };
 
 // Constant parameters (default storage)
 const ConstP_Controller_T Controller_ConstP = {
-  // Computed Parameter: uDLookupTable1_tableData
-  //  Referenced by: '<S9>/1-D Lookup Table1'
-
-  { 0.348023F, 0.524204254F, 0.4303F, 0.369954735F, 0.131051064F, 0.107575F,
-    0.0924886838F, 0.0F, -1.0F, -1.0F, -1.0F, 1.0F, 1.0F, 1.0F, -15.0F, -15.0F,
-    -15.0F, -15.0F, -15.0F, -15.0F, -15.0F, 15.0F, 15.0F, 15.0F, 15.0F, 15.0F,
-    15.0F, 15.0F, 0.284384459F, 0.485149562F, 0.43316108F, 0.396326333F,
-    0.121287391F, 0.10829027F, 0.0990815833F, 0.0F, -1.0F, -1.0F, -1.0F, 1.0F,
-    1.0F, 1.0F, -15.0F, -15.0F, -15.0F, -15.0F, -15.0F, -15.0F, -15.0F, 15.0F,
-    15.0F, 15.0F, 15.0F, 15.0F, 15.0F, 15.0F },
-
   // Expression: Controlador.Entry.Gains
   //  Referenced by: '<S12>/1-D Lookup Table1'
 
@@ -256,11 +232,6 @@ const ConstP_Controller_T Controller_ConstP = {
     8.45576286F, 8.05779171F, 7.634377F, 7.19393682F, 6.72254467F, 6.21676588F },
 
   // Computed Parameter: uDLookupTable1_maxIndex
-  //  Referenced by: '<S9>/1-D Lookup Table1'
-
-  { 6U, 7U },
-
-  // Computed Parameter: uDLookupTable1_maxIndex_m
   //  Referenced by: '<S12>/1-D Lookup Table1'
 
   { 7U, 6U, 1U, 1U },
@@ -282,16 +253,10 @@ const ConstP_Controller_T Controller_ConstP = {
 
   // Pooled Parameter (Expression: uint8(1:7))
   //  Referenced by:
-  //    '<S9>/1-D Lookup Table1'
   //    '<S12>/1-D Lookup Table1'
   //    '<S13>/1-D Lookup Table'
 
   { 1U, 2U, 3U, 4U, 5U, 6U, 7U },
-
-  // Expression: uint8(1:8)
-  //  Referenced by: '<S9>/1-D Lookup Table1'
-
-  { 1U, 2U, 3U, 4U, 5U, 6U, 7U, 8U },
 
   // Pooled Parameter (Expression: uint8(1:2))
   //  Referenced by: '<S12>/1-D Lookup Table1'

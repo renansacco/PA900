@@ -3,9 +3,9 @@
 //
 // Code generated for Simulink model 'Controller'.
 //
-// Model version                  : 1.82
+// Model version                  : 1.87
 // Simulink Coder version         : 9.2 (R2019b) 18-Jul-2019
-// C/C++ source code generated on : Mon Oct 20 20:40:14 2025
+// C/C++ source code generated on : Fri Jun 19 17:34:39 2026
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: Intel->x86-64 (Windows64)
@@ -30,11 +30,7 @@ typedef struct {
   real32_T u_control;                  // '<Root>/Merge'
   real32_T psi_error_keep;             // '<S13>/MATLAB Function'
   real32_T r_ref;                      // '<S9>/Product'
-  real32_T u_CME_Linearizado_r;        // '<S9>/Gain'
-  real32_T u_CME_linearizado_psie;     // '<S9>/Gain1'
   real32_T psi_ref;                    // '<S9>/MATLAB Function'
-  real32_T u_CME_r;                    // '<S9>/CME2'
-  real32_T u_CME_psie;                 // '<S9>/CME1'
   boolean_T enable_servo;              // '<Root>/Chart'
   boolean_T enable_control;            // '<Root>/Chart'
   boolean_T ready;                     // '<Root>/Chart'
@@ -55,9 +51,6 @@ typedef struct {
   uint32_T m_Cache02_j;                // '<S12>/1-D Lookup Table1'
   uint32_T m_Cache03_e[2];             // '<S12>/1-D Lookup Table1'
   uint32_T m_Cache04_o;                // '<S12>/1-D Lookup Table1'
-  uint32_T m_bpIndex_o[9];             // '<S9>/1-D Lookup Table1'
-  uint32_T m_Cache01_n;                // '<S9>/1-D Lookup Table1'
-  uint32_T m_Cache02_f[8];             // '<S9>/1-D Lookup Table1'
   boolean_T DelayInput1_DSTATE;        // '<S10>/Delay Input1'
   boolean_T DelayInput1_DSTATE_m;      // '<S11>/Delay Input1'
   uint8_T is_active_c1_Controller;     // '<Root>/Chart'
@@ -74,20 +67,14 @@ typedef const struct tag_ConstB_Controller_T {
   real32_T DataTypeConversion1;        // '<Root>/Data Type Conversion1'
   uint8_T DataTypeConversion6[3];      // '<S13>/Data Type Conversion6'
   uint8_T DataTypeConversion6_n[2];    // '<S12>/Data Type Conversion6'
-  uint8_T DataTypeConversion1_f[8];    // '<S9>/Data Type Conversion1'
 } ConstB_Controller_T;
 
 // Constant parameters (default storage)
 typedef struct {
-  // Computed Parameter: uDLookupTable1_tableData
-  //  Referenced by: '<S9>/1-D Lookup Table1'
-
-  real32_T uDLookupTable1_tableData[56];
-
   // Expression: Controlador.Entry.Gains
   //  Referenced by: '<S12>/1-D Lookup Table1'
 
-  real32_T uDLookupTable1_tableData_b[224];
+  real32_T uDLookupTable1_tableData[224];
 
   // Pooled Parameter (Mixed Expressions)
   //  Referenced by:
@@ -102,14 +89,9 @@ typedef struct {
   real32_T uDLookupTable_tableData[672];
 
   // Computed Parameter: uDLookupTable1_maxIndex
-  //  Referenced by: '<S9>/1-D Lookup Table1'
-
-  uint32_T uDLookupTable1_maxIndex[2];
-
-  // Computed Parameter: uDLookupTable1_maxIndex_m
   //  Referenced by: '<S12>/1-D Lookup Table1'
 
-  uint32_T uDLookupTable1_maxIndex_m[4];
+  uint32_T uDLookupTable1_maxIndex[4];
 
   // Computed Parameter: uDLookupTable1_dimSizes
   //  Referenced by: '<S12>/1-D Lookup Table1'
@@ -128,16 +110,10 @@ typedef struct {
 
   // Pooled Parameter (Expression: uint8(1:7))
   //  Referenced by:
-  //    '<S9>/1-D Lookup Table1'
   //    '<S12>/1-D Lookup Table1'
   //    '<S13>/1-D Lookup Table'
 
   uint8_T pooled8[7];
-
-  // Expression: uint8(1:8)
-  //  Referenced by: '<S9>/1-D Lookup Table1'
-
-  uint8_T uDLookupTable1_bp02Data[8];
 
   // Pooled Parameter (Expression: uint8(1:2))
   //  Referenced by: '<S12>/1-D Lookup Table1'
@@ -176,7 +152,6 @@ struct P_Controller_T_ {
   controllerParameterBus_t userParameters;// Variable: userParameters
                                              //  Referenced by:
                                              //    '<Root>/Constant1'
-                                             //    '<S9>/Constant6'
                                              //    '<S12>/Constant4'
                                              //    '<S12>/Constant6'
                                              //    '<S13>/Constant1'
@@ -239,10 +214,14 @@ class ControladorModelClass {
 //-
 //  These blocks were eliminated from the model due to optimizations:
 //
+//  Block '<S9>/1-D Lookup Table2' : Unused code path elimination
+//  Block '<S9>/Constant2' : Unused code path elimination
+//  Block '<S9>/Display' : Unused code path elimination
+//  Block '<S9>/Display1' : Unused code path elimination
+//  Block '<S9>/Display2' : Unused code path elimination
+//  Block '<S9>/Scope2' : Unused code path elimination
+//  Block '<S9>/Scope3' : Unused code path elimination
 //  Block '<S9>/Scope8' : Unused code path elimination
-//  Block '<S9>/Data Type Conversion2' : Eliminate redundant data type conversion
-//  Block '<S9>/Data Type Conversion8' : Eliminate redundant data type conversion
-//  Block '<S9>/Data Type Conversion9' : Eliminate redundant data type conversion
 //  Block '<Root>/Data Type Conversion' : Eliminate redundant data type conversion
 //  Block '<Root>/Data Type Conversion2' : Eliminate redundant data type conversion
 //  Block '<Root>/Data Type Conversion3' : Eliminate redundant data type conversion
@@ -282,13 +261,11 @@ class ControladorModelClass {
 //  '<S12>'  : 'Controller/LQR - Entry Straight'
 //  '<S13>'  : 'Controller/LQR - Keep Straight'
 //  '<S14>'  : 'Controller/MATLAB Function1'
-//  '<S15>'  : 'Controller/Controle_Curva/CME1'
-//  '<S16>'  : 'Controller/Controle_Curva/CME2'
-//  '<S17>'  : 'Controller/Controle_Curva/MATLAB Function'
-//  '<S18>'  : 'Controller/Controle_Curva/MATLAB Function1'
-//  '<S19>'  : 'Controller/LQR - Entry Straight/MATLAB Function'
-//  '<S20>'  : 'Controller/LQR - Entry Straight/MATLAB Function1'
-//  '<S21>'  : 'Controller/LQR - Keep Straight/MATLAB Function'
+//  '<S15>'  : 'Controller/Controle_Curva/MATLAB Function'
+//  '<S16>'  : 'Controller/Controle_Curva/MATLAB Function1'
+//  '<S17>'  : 'Controller/LQR - Entry Straight/MATLAB Function'
+//  '<S18>'  : 'Controller/LQR - Entry Straight/MATLAB Function1'
+//  '<S19>'  : 'Controller/LQR - Keep Straight/MATLAB Function'
 
 #endif                                 // RTW_HEADER_Controller_h_
 

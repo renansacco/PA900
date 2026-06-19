@@ -3,7 +3,7 @@ ctrlDir = fileparts(mfilename('fullpath'));
 addpath(fullfile(ctrlDir, 'buses'));
 addpath(fullfile(ctrlDir, 'enums'));
 addpath(fullfile(ctrlDir, 'gains'));
-
+addpath(fullfile(pwd, 'Controller_ert_rtw'));
 %% Buses
 Simulink.importExternalCTypes(fullfile(ctrlDir, 'Controller_ert_rtw', 'mg900_model_types.h'));
 
@@ -40,17 +40,17 @@ Controlador.Value.Curva.T_look = single(param_curva.T_look);
 Controlador.Value.Curva.omegam_sat = single(6);
 
 %% Controlador de curva — CME legado (teste comparativo)
-Ks_cme = [0.1817   1    0.1089   1];
-Controlador.Value.CurvaCME.eps = Ks_cme(1);
-Controlador.Value.CurvaCME.Bps = Ks_cme(2);
-Controlador.Value.CurvaCME.urps = single([-15 15]');
-Controlador.Value.CurvaCME.er = Ks_cme(3);
-Controlador.Value.CurvaCME.Br = Ks_cme(4);
-Controlador.Value.CurvaCME.urr = single([-15 15]');
-param_cme = load('Curva_Gains_Final.mat');
-controllerGainsCurve = param_cme.CME_Gains;
-Controlador.Value.CurvaCME.omegam_sat = single(15);
-Controlador.Value.CurvaCME.Delta = single(4);
+% Ks_cme = [0.1817   1    0.1089   1];
+% Controlador.Value.CurvaCME.eps = Ks_cme(1);
+% Controlador.Value.CurvaCME.Bps = Ks_cme(2);
+% Controlador.Value.CurvaCME.urps = single([-15 15]');
+% Controlador.Value.CurvaCME.er = Ks_cme(3);
+% Controlador.Value.CurvaCME.Br = Ks_cme(4);
+% Controlador.Value.CurvaCME.urr = single([-15 15]');
+% param_cme = load('Curva_Gains_Final.mat');
+% controllerGainsCurve = param_cme.CME_Gains;
+% Controlador.Value.CurvaCME.omegam_sat = single(15);
+% Controlador.Value.CurvaCME.Delta = single(4);
 
 %% Controlador 'Keep'
 param_keep_trator = load('Keep_Tractor_Sem_Implemento.mat');

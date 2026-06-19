@@ -3,9 +3,9 @@
 //
 // Code generated for Simulink model 'Controller'.
 //
-// Model version                  : 1.82
+// Model version                  : 1.87
 // Simulink Coder version         : 9.2 (R2019b) 18-Jul-2019
-// C/C++ source code generated on : Mon Oct 20 20:40:14 2025
+// C/C++ source code generated on : Fri Jun 19 17:34:39 2026
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: Intel->x86-64 (Windows64)
@@ -32,6 +32,9 @@ typedef struct {
 
   // Velocidade linear frontal do veículo, em m/s
   real32_T vx;
+
+  // Angulo de escorregamento (course=psi+sideslip) em rad
+  real32_T sideslip;
 } controllerMeasurementBus_t;
 
 #endif
@@ -151,19 +154,15 @@ typedef struct {
 
 #endif
 
-#ifndef DEFINED_TYPEDEF_FOR_struct_8yF7qmVnNAezVnW5BFltCD_
-#define DEFINED_TYPEDEF_FOR_struct_8yF7qmVnNAezVnW5BFltCD_
+#ifndef DEFINED_TYPEDEF_FOR_struct_xm1VixvgQvCXgRr2KQqytC_
+#define DEFINED_TYPEDEF_FOR_struct_xm1VixvgQvCXgRr2KQqytC_
 
 typedef struct {
-  real_T eps;
-  real_T Bps;
-  real32_T urps[2];
-  real_T er;
-  real_T Br;
-  real32_T urr[2];
+  real32_T Gains[16];
+  real32_T v_index[8];
+  real32_T T_look;
   real32_T omegam_sat;
-  real32_T Delta;
-} struct_8yF7qmVnNAezVnW5BFltCD;
+} struct_xm1VixvgQvCXgRr2KQqytC;
 
 #endif
 
@@ -192,15 +191,15 @@ typedef struct {
 
 #endif
 
-#ifndef DEFINED_TYPEDEF_FOR_struct_q6j6rStNWDqFQCmJb8UGj_
-#define DEFINED_TYPEDEF_FOR_struct_q6j6rStNWDqFQCmJb8UGj_
+#ifndef DEFINED_TYPEDEF_FOR_struct_D1gEF8DYleRuqwK7MuNeeH_
+#define DEFINED_TYPEDEF_FOR_struct_D1gEF8DYleRuqwK7MuNeeH_
 
 typedef struct {
   real_T Ts;
-  struct_8yF7qmVnNAezVnW5BFltCD Curva;
+  struct_xm1VixvgQvCXgRr2KQqytC Curva;
   struct_aZbHsNpZ2wOKlbf6Q3u2yD Keep;
   struct_K7aNpc71bVF4P6UKAeMFnB Entry;
-} struct_q6j6rStNWDqFQCmJb8UGj;
+} struct_D1gEF8DYleRuqwK7MuNeeH;
 
 #endif
 

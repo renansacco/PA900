@@ -3,9 +3,9 @@
 //
 // Code generated for Simulink model 'Controller'.
 //
-// Model version                  : 1.82
+// Model version                  : 1.87
 // Simulink Coder version         : 9.2 (R2019b) 18-Jul-2019
-// C/C++ source code generated on : Mon Oct 20 20:40:14 2025
+// C/C++ source code generated on : Fri Jun 19 17:34:39 2026
 //
 // Target selection: ert.tlc
 // Embedded hardware selection: Intel->x86-64 (Windows64)
@@ -210,41 +210,6 @@ real32_T intrp4d_fu32fla_pw(const uint32_T bpIndex[], const real32_T frac[],
   return y;
 }
 
-real32_T intrp2d_fu32fla_pw(const uint32_T bpIndex[], const real32_T frac[],
-  const real32_T table[], const uint32_T stride, const uint32_T maxIndex[])
-{
-  real32_T y;
-  real32_T yR_1d;
-  uint32_T offset_1d;
-
-  // Column-major Interpolation 2-D
-  // Interpolation method: 'Linear point-slope'
-  // Use last breakpoint for index at or above upper limit: 'on'
-  // Overflow mode: 'portable wrapping'
-
-  offset_1d = bpIndex[1U] * stride + bpIndex[0U];
-  if (bpIndex[0U] == maxIndex[0U]) {
-    y = table[offset_1d];
-  } else {
-    y = (table[offset_1d + 1U] - table[offset_1d]) * frac[0U] + table[offset_1d];
-  }
-
-  if (bpIndex[1U] == maxIndex[1U]) {
-  } else {
-    offset_1d += stride;
-    if (bpIndex[0U] == maxIndex[0U]) {
-      yR_1d = table[offset_1d];
-    } else {
-      yR_1d = (table[offset_1d + 1U] - table[offset_1d]) * frac[0U] +
-        table[offset_1d];
-    }
-
-    y += (yR_1d - y) * frac[1U];
-  }
-
-  return y;
-}
-
 uint32_T linsearch_u32f(real32_T u, const real32_T bp[], uint32_T startIndex)
 {
   uint32_T bpIndex;
@@ -366,21 +331,18 @@ real32_T ControladorModelClass::Controller_mod_d(real32_T x)
 // Model step function
 void ControladorModelClass::step()
 {
-  int32_T iU;
+  real32_T psi_ref_;
   uint32_T bpIndices[4];
   real32_T fractions[4];
   uint32_T bpIndices_0[4];
   real32_T fractions_0[4];
-  uint32_T bpIndices_1[2];
-  real32_T fractions_1[2];
   ControllerState_t rtb_controllerState;
   real32_T rtb_Switch1;
-  real32_T rtb_uDLookupTable1[8];
   boolean_T Modo_Curva_prev;
-  real32_T rtb_uDLookupTable1_a_idx_0;
-  real32_T rtb_uDLookupTable1_a_idx_1;
-  real32_T rtb_uDLookupTable_idx_1;
+  real32_T rtb_uDLookupTable1_idx_0;
+  real32_T rtb_uDLookupTable1_idx_1;
   real32_T rtb_uDLookupTable_idx_2;
+  real_T rtb_Switch1_0;
   real32_T tmp;
   boolean_T guard1 = false;
 
@@ -518,6 +480,7 @@ void ControladorModelClass::step()
       //   Constant: '<S12>/Constant4'
       //   Constant: '<S12>/Constant6'
       //   Inport: '<Root>/Measurements'
+      //   SignalConversion generated from: '<Root>/Measurements'
 
       bpIndices[0U] = plook_u32ff_lincpa(Controller_U.Measurements.vx,
         Controller_ConstP.pooled5, 7U, &rtb_Switch1, &Controller_DW.m_Cache01_i);
@@ -540,10 +503,10 @@ void ControladorModelClass::step()
       //   EnablePort: '<S12>/Enable'
 
       // Lookup_n-D: '<S12>/1-D Lookup Table1'
-      rtb_uDLookupTable1_a_idx_0 = intrp4d_fu32fla_pw(bpIndices, fractions,
-        Controller_ConstP.uDLookupTable1_tableData_b,
+      rtb_uDLookupTable1_idx_0 = intrp4d_fu32fla_pw(bpIndices, fractions,
+        Controller_ConstP.uDLookupTable1_tableData,
         Controller_ConstP.uDLookupTable1_dimSizes,
-        Controller_ConstP.uDLookupTable1_maxIndex_m);
+        Controller_ConstP.uDLookupTable1_maxIndex);
       bpIndices[2U] = plook_u32u8f_lincpa
         (Controller_ConstB.DataTypeConversion6_n[1], Controller_ConstP.pooled9,
          1U, &rtb_Switch1, &Controller_DW.m_Cache03_e[1]);
@@ -555,16 +518,17 @@ void ControladorModelClass::step()
       //   EnablePort: '<S12>/Enable'
 
       // Lookup_n-D: '<S12>/1-D Lookup Table1'
-      rtb_uDLookupTable1_a_idx_1 = intrp4d_fu32fla_pw(bpIndices, fractions,
-        Controller_ConstP.uDLookupTable1_tableData_b,
+      rtb_uDLookupTable1_idx_1 = intrp4d_fu32fla_pw(bpIndices, fractions,
+        Controller_ConstP.uDLookupTable1_tableData,
         Controller_ConstP.uDLookupTable1_dimSizes,
-        Controller_ConstP.uDLookupTable1_maxIndex_m);
+        Controller_ConstP.uDLookupTable1_maxIndex);
 
       // MATLAB Function: '<S12>/MATLAB Function1' incorporates:
       //   Constant: '<S12>/Constant'
       //   Inport: '<Root>/Guidance'
       //   Inport: '<Root>/Measurements'
       //   MATLAB Function: '<S12>/MATLAB Function'
+      //   SignalConversion generated from: '<Root>/Measurements'
 
       Controller_MATLABFunction1(Controller_U.Guidance.alpha + std::atan
         (-Controller_U.Guidance.e / 6.0F), Controller_U.Measurements.Psi,
@@ -573,10 +537,11 @@ void ControladorModelClass::step()
       // DotProduct: '<S12>/Dot Product1' incorporates:
       //   Gain: '<S12>/Gain2'
       //   Inport: '<Root>/Measurements'
+      //   SignalConversion generated from: '<Root>/Measurements'
       //   SignalConversion generated from: '<S12>/Dot Product1'
 
-      rtb_Switch1 = rtb_uDLookupTable1_a_idx_0 * rtb_Switch1 +
-        rtb_uDLookupTable1_a_idx_1 * -Controller_U.Measurements.r;
+      rtb_Switch1 = rtb_uDLookupTable1_idx_0 * rtb_Switch1 +
+        rtb_uDLookupTable1_idx_1 * -Controller_U.Measurements.r;
 
       // Saturate: '<S12>/Saturation1' incorporates:
       //   DotProduct: '<S12>/Dot Product1'
@@ -611,6 +576,7 @@ void ControladorModelClass::step()
     //   Constant: '<S13>/Constant1'
     //   Constant: '<S13>/Constant4'
     //   Inport: '<Root>/Measurements'
+    //   SignalConversion generated from: '<Root>/Measurements'
 
     bpIndices_0[0U] = plook_u32ff_lincpa(Controller_U.Measurements.vx,
       Controller_ConstP.pooled5, 7U, &rtb_Switch1, &Controller_DW.m_Cache01);
@@ -629,7 +595,7 @@ void ControladorModelClass::step()
     fractions_0[2U] = rtb_Switch1;
 
     // Lookup_n-D: '<S13>/1-D Lookup Table'
-    rtb_uDLookupTable1_a_idx_1 = intrp4d_fu32fla_pw(bpIndices_0, fractions_0,
+    rtb_uDLookupTable1_idx_0 = intrp4d_fu32fla_pw(bpIndices_0, fractions_0,
       Controller_ConstP.uDLookupTable_tableData,
       Controller_ConstP.uDLookupTable_dimSizes,
       Controller_ConstP.uDLookupTable_maxIndex);
@@ -639,7 +605,7 @@ void ControladorModelClass::step()
     fractions_0[2U] = rtb_Switch1;
 
     // Lookup_n-D: '<S13>/1-D Lookup Table'
-    rtb_uDLookupTable_idx_1 = intrp4d_fu32fla_pw(bpIndices_0, fractions_0,
+    rtb_uDLookupTable1_idx_1 = intrp4d_fu32fla_pw(bpIndices_0, fractions_0,
       Controller_ConstP.uDLookupTable_tableData,
       Controller_ConstP.uDLookupTable_dimSizes,
       Controller_ConstP.uDLookupTable_maxIndex);
@@ -658,24 +624,24 @@ void ControladorModelClass::step()
     //   Inport: '<Root>/Guidance'
     //   Inport: '<Root>/Measurements'
     //   Inport: '<S13>/alpha'
+    //   SignalConversion generated from: '<Root>/Measurements'
 
     rtb_Switch1 = Controller_mod_d(Controller_U.Measurements.Psi);
-    rtb_uDLookupTable1_a_idx_0 = Controller_mod_d(Controller_U.Guidance.alpha);
-    if (rtb_Switch1 > rtb_uDLookupTable1_a_idx_0) {
-      tmp = rtb_uDLookupTable1_a_idx_0 - rtb_Switch1;
-      rtb_Switch1 = (6.28318548F - rtb_Switch1) + rtb_uDLookupTable1_a_idx_0;
+    psi_ref_ = Controller_mod_d(Controller_U.Guidance.alpha);
+    if (rtb_Switch1 > psi_ref_) {
+      tmp = psi_ref_ - rtb_Switch1;
+      rtb_Switch1 = (6.28318548F - rtb_Switch1) + psi_ref_;
       if (std::abs(rtb_Switch1) < std::abs(tmp)) {
         Controller_B.psi_error_keep = rtb_Switch1;
       } else {
         Controller_B.psi_error_keep = tmp;
       }
-    } else if (rtb_Switch1 < rtb_uDLookupTable1_a_idx_0) {
-      if (std::abs(rtb_Switch1 - rtb_uDLookupTable1_a_idx_0) < std::abs
-          ((6.28318548F - rtb_uDLookupTable1_a_idx_0) + rtb_Switch1)) {
-        Controller_B.psi_error_keep = rtb_uDLookupTable1_a_idx_0 - rtb_Switch1;
+    } else if (rtb_Switch1 < psi_ref_) {
+      if (std::abs(rtb_Switch1 - psi_ref_) < std::abs((6.28318548F - psi_ref_) +
+           rtb_Switch1)) {
+        Controller_B.psi_error_keep = psi_ref_ - rtb_Switch1;
       } else {
-        Controller_B.psi_error_keep = -((rtb_Switch1 + 6.28318548F) -
-          rtb_uDLookupTable1_a_idx_0);
+        Controller_B.psi_error_keep = -((rtb_Switch1 + 6.28318548F) - psi_ref_);
       }
     } else {
       Controller_B.psi_error_keep = 0.0F;
@@ -688,10 +654,11 @@ void ControladorModelClass::step()
     //   Gain: '<S13>/Gain3'
     //   Inport: '<Root>/Guidance'
     //   Inport: '<Root>/Measurements'
+    //   SignalConversion generated from: '<Root>/Measurements'
     //   SignalConversion generated from: '<S13>/Dot Product'
 
-    rtb_Switch1 = (rtb_uDLookupTable1_a_idx_1 * Controller_B.psi_error_keep +
-                   rtb_uDLookupTable_idx_1 * -Controller_U.Measurements.r) +
+    rtb_Switch1 = (rtb_uDLookupTable1_idx_0 * Controller_B.psi_error_keep +
+                   rtb_uDLookupTable1_idx_1 * -Controller_U.Measurements.r) +
       rtb_uDLookupTable_idx_2 * -Controller_U.Guidance.e;
 
     // Saturate: '<S13>/Saturation1' incorporates:
@@ -721,145 +688,67 @@ void ControladorModelClass::step()
   //   Constant: '<S7>/Constant'
 
   if (rtb_controllerState == CONTROLLER_STATE_CURVE) {
-    // Lookup_n-D: '<S9>/1-D Lookup Table1' incorporates:
-    //   Constant: '<S9>/Constant6'
+    // Product: '<S9>/Product3' incorporates:
+    //   Constant: '<S9>/Constant8'
+    //   Inport: '<Root>/Measurements'
+    //   SignalConversion generated from: '<Root>/Measurements'
 
-    bpIndices_1[0U] = plook_u32u8f_lincpa
-      (Controller_P.userParameters.curveAggressiveness,
-       Controller_ConstP.pooled8, 6U, &rtb_Switch1, &Controller_DW.m_Cache01_n);
-    fractions_1[0U] = rtb_Switch1;
-    for (iU = 0; iU < 8; iU++) {
-      bpIndices_1[1U] = plook_u32u8f_lincpa
-        (Controller_ConstB.DataTypeConversion1_f[iU],
-         Controller_ConstP.uDLookupTable1_bp02Data, 7U, &rtb_Switch1,
-         &Controller_DW.m_Cache02_f[iU]);
-      fractions_1[1U] = rtb_Switch1;
-      rtb_uDLookupTable1[iU] = intrp2d_fu32fla_pw(bpIndices_1, fractions_1,
-        Controller_ConstP.uDLookupTable1_tableData, 7U,
-        Controller_ConstP.uDLookupTable1_maxIndex);
+    rtb_Switch1 = 2.0F * Controller_U.Measurements.vx;
+
+    // MinMax: '<S9>/Max'
+    if (rtb_Switch1 > 2.0F) {
+      rtb_Switch1_0 = rtb_Switch1;
+    } else {
+      rtb_Switch1_0 = 2.0;
     }
 
-    // End of Lookup_n-D: '<S9>/1-D Lookup Table1'
+    // End of MinMax: '<S9>/Max'
 
     // MATLAB Function: '<S9>/MATLAB Function' incorporates:
-    //   Constant: '<S9>/Constant8'
     //   Inport: '<Root>/Guidance'
 
-    Controller_B.psi_ref = std::atan(-Controller_U.Guidance.e / 4.0F) +
-      Controller_U.Guidance.alpha;
+    Controller_B.psi_ref = std::atan(-Controller_U.Guidance.e /
+      static_cast<real32_T>(rtb_Switch1_0)) + Controller_U.Guidance.alpha;
 
     // MATLAB Function: '<S9>/MATLAB Function1' incorporates:
     //   Inport: '<Root>/Measurements'
+    //   SignalConversion generated from: '<Root>/Measurements'
+    //   Sum: '<S9>/Add'
 
     Controller_MATLABFunction1(Controller_B.psi_ref,
-      Controller_U.Measurements.Psi, &rtb_Switch1);
-
-    // MATLAB Function: '<S9>/CME1'
-    rtb_uDLookupTable1_a_idx_1 = rtb_Switch1 / rtb_uDLookupTable1[0];
-    if (rtb_uDLookupTable1_a_idx_1 < -1.0F) {
-      rtb_uDLookupTable1_a_idx_1 = -1.0F;
-    } else {
-      if (rtb_uDLookupTable1_a_idx_1 > 1.0F) {
-        rtb_uDLookupTable1_a_idx_1 = 1.0F;
-      }
-    }
-
-    if (std::abs(rtb_uDLookupTable1_a_idx_1) != 1.0F) {
-      if (rtb_uDLookupTable1_a_idx_1 < 0.0F) {
-        rtb_uDLookupTable_idx_1 = -1.0F;
-      } else if (rtb_uDLookupTable1_a_idx_1 > 0.0F) {
-        rtb_uDLookupTable_idx_1 = 1.0F;
-      } else {
-        rtb_uDLookupTable_idx_1 = rtb_uDLookupTable1_a_idx_1;
-      }
-
-      rtb_uDLookupTable1_a_idx_1 -= rtb_uDLookupTable_idx_1;
-      if (rtb_uDLookupTable1_a_idx_1 < 0.0F) {
-        rtb_uDLookupTable_idx_1 = -1.0F;
-      } else if (rtb_uDLookupTable1_a_idx_1 > 0.0F) {
-        rtb_uDLookupTable_idx_1 = 1.0F;
-      } else {
-        rtb_uDLookupTable_idx_1 = rtb_uDLookupTable1_a_idx_1;
-      }
-
-      rtb_uDLookupTable1_a_idx_1 = (std::pow(std::abs(rtb_uDLookupTable1_a_idx_1),
-        std::pow(2.0F, -rtb_uDLookupTable1[1])) - 1.0F) *
-        rtb_uDLookupTable_idx_1;
-    }
-
-    Controller_B.u_CME_psie = (rtb_uDLookupTable1[3] - rtb_uDLookupTable1[2]) /
-      2.0F * (rtb_uDLookupTable1_a_idx_1 - 1.0F) + rtb_uDLookupTable1[3];
-
-    // End of MATLAB Function: '<S9>/CME1'
+      Controller_U.Measurements.sideslip + Controller_U.Measurements.Psi,
+      &rtb_Switch1);
 
     // Product: '<S9>/Product' incorporates:
     //   Inport: '<Root>/Guidance'
     //   Inport: '<Root>/Measurements'
+    //   SignalConversion generated from: '<Root>/Measurements'
 
     Controller_B.r_ref = Controller_U.Guidance.curvature *
       Controller_U.Measurements.vx;
 
-    // Sum: '<S9>/Add3' incorporates:
+    // Sum: '<S9>/Add1' incorporates:
+    //   Constant: '<S9>/Constant4'
+    //   Constant: '<S9>/Constant5'
     //   Inport: '<Root>/Measurements'
+    //   Product: '<S9>/Product1'
+    //   Product: '<S9>/Product2'
+    //   SignalConversion generated from: '<Root>/Measurements'
+    //   Sum: '<S9>/Add2'
 
-    rtb_uDLookupTable1_a_idx_0 = Controller_B.r_ref -
-      Controller_U.Measurements.r;
-
-    // MATLAB Function: '<S9>/CME2'
-    rtb_uDLookupTable1_a_idx_1 = rtb_uDLookupTable1_a_idx_0 /
-      rtb_uDLookupTable1[4];
-    if (rtb_uDLookupTable1_a_idx_1 < -1.0F) {
-      rtb_uDLookupTable1_a_idx_1 = -1.0F;
-    } else {
-      if (rtb_uDLookupTable1_a_idx_1 > 1.0F) {
-        rtb_uDLookupTable1_a_idx_1 = 1.0F;
-      }
-    }
-
-    if (std::abs(rtb_uDLookupTable1_a_idx_1) != 1.0F) {
-      if (rtb_uDLookupTable1_a_idx_1 < 0.0F) {
-        rtb_uDLookupTable_idx_1 = -1.0F;
-      } else if (rtb_uDLookupTable1_a_idx_1 > 0.0F) {
-        rtb_uDLookupTable_idx_1 = 1.0F;
-      } else {
-        rtb_uDLookupTable_idx_1 = rtb_uDLookupTable1_a_idx_1;
-      }
-
-      rtb_uDLookupTable1_a_idx_1 -= rtb_uDLookupTable_idx_1;
-      if (rtb_uDLookupTable1_a_idx_1 < 0.0F) {
-        rtb_uDLookupTable_idx_1 = -1.0F;
-      } else if (rtb_uDLookupTable1_a_idx_1 > 0.0F) {
-        rtb_uDLookupTable_idx_1 = 1.0F;
-      } else {
-        rtb_uDLookupTable_idx_1 = rtb_uDLookupTable1_a_idx_1;
-      }
-
-      rtb_uDLookupTable1_a_idx_1 = (std::pow(std::abs(rtb_uDLookupTable1_a_idx_1),
-        std::pow(2.0F, -rtb_uDLookupTable1[5])) - 1.0F) *
-        rtb_uDLookupTable_idx_1;
-    }
-
-    Controller_B.u_CME_r = (rtb_uDLookupTable1[7] - rtb_uDLookupTable1[6]) /
-      2.0F * (rtb_uDLookupTable1_a_idx_1 - 1.0F) + rtb_uDLookupTable1[7];
-
-    // End of MATLAB Function: '<S9>/CME2'
-
-    // Gain: '<S9>/Gain'
-    Controller_B.u_CME_Linearizado_r = 68.9F * rtb_uDLookupTable1_a_idx_0;
-
-    // Gain: '<S9>/Gain1'
-    Controller_B.u_CME_linearizado_psie = 41.28F * rtb_Switch1;
-
-    // Sum: '<S9>/Add1'
-    rtb_Switch1 = Controller_B.u_CME_psie + Controller_B.u_CME_r;
+    rtb_Switch1_0 = (Controller_B.r_ref - Controller_U.Measurements.r) * 75.0 +
+      rtb_Switch1 * 81.0;
 
     // Saturate: '<S9>/Saturation'
-    if (rtb_Switch1 > 15.0F) {
-      Controller_B.u_control = 15.0F;
-    } else if (rtb_Switch1 < -15.0F) {
-      Controller_B.u_control = -15.0F;
+    if (rtb_Switch1_0 > 6.0) {
+      // DataTypeConversion: '<S9>/Data Type Conversion3'
+      Controller_B.u_control = 6.0F;
+    } else if (rtb_Switch1_0 < -6.0) {
+      // DataTypeConversion: '<S9>/Data Type Conversion3'
+      Controller_B.u_control = -6.0F;
     } else {
-      Controller_B.u_control = rtb_Switch1;
+      // DataTypeConversion: '<S9>/Data Type Conversion3'
+      Controller_B.u_control = static_cast<real32_T>(rtb_Switch1_0);
     }
 
     // End of Saturate: '<S9>/Saturation'
@@ -893,6 +782,7 @@ void ControladorModelClass::step()
 
   // MATLAB Function: '<Root>/MATLAB Function1' incorporates:
   //   Inport: '<Root>/Measurements'
+  //   SignalConversion generated from: '<Root>/Measurements'
 
   Modo_Curva_prev = false;
   if (Controller_P.steerCalibration.isCalibrated) {
