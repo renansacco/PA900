@@ -12,15 +12,15 @@ benchDir = fileparts(mfilename('fullpath'));
 addpath(fullfile(benchDir, 'trajetorias'));
 
 %% Config
-velocidades = [1.0, 2.0, 3.0];  % m/s
+velocidades = [2];  % m/s
 t_descarte  = 2.0;              % s — descarte para metricas de regime
 useCourse   = 1;                % 0 = heading, 1 = course (psi+beta) no lookahead
 wpDistance_guidance = 3.0;       % resample waypoints (igual ao embarcado). 0 = sem resample
 
 condicoes_iniciais = {
     'alinhado',     0,    0;      % nome, offset_lateral [m], erro_heading [deg]
-    'offset_05m',   0.5,  0;
-    'heading_10deg', 0,   10;
+  %  'offset_05m',   0.5,  0;
+  %  'heading_10deg', 0,   10;
 };
 
 %% Carrega trajetorias
@@ -118,7 +118,7 @@ for it = 1:n_trajs
 end
 
 %% Salva resultados
-outFile = fullfile(fileparts(mfilename('fullpath')), 'benchmark_results_course.mat');
+outFile = fullfile(fileparts(mfilename('fullpath')), 'benchmark_results_newControls.mat');
 save(outFile, 'results');
 fprintf('\nSalvo: benchmark_results.mat (%d cenarios)\n', numel(results));
 

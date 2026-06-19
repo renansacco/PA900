@@ -9,7 +9,7 @@ cfg.tsim      = 15;             % tempo de simulacao [s]
 cfg.omega_sat = 6;              % saturacao omega_m [rad/s]
 cfg.X0        = zeros(7, 1);    % equilibrio
 cfg.Pm_min    = 35;             % margem de fase minima [deg]
-cfg.tau_ratio_max = 0.50;       % tau_MF / tau_la maximo
+cfg.tau_ratio_max = 0.30;       % tau_MF / tau_la maximo
 cfg.R_ctrl    = 1.0 / cfg.omega_sat^2;
 
 r_max     = deg2rad(15);        % yaw rate maximo toleravel [rad/s]

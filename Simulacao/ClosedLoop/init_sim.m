@@ -12,6 +12,7 @@ params = load('param_MF6713.mat');
 
 %% Guidance
 Ts_guidance = 0.05;
+useCourse=1;
 tmp = load('taipas_boeck.mat');
 %wps = [tmp.guias{10}.x, tmp.guias{10}.y];
 wps = tmp.guias{20};

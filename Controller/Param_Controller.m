@@ -24,7 +24,7 @@ steerCalibration.CoderInfo.StorageClass = 'Model default';
 %% Parametros do usu�rio
 userParameters = Simulink.Parameter;
 userParameters.DataType = 'Bus: controllerParameterBus_t';
-userParameters.Value = struct('modelPlant', 1, 'vehicleMode', ModoVeiculo.None, 'straightAggressiveness', 4, 'curveAggressiveness', 4, 'isCurveMode', false);
+userParameters.Value = struct('modelPlant', 1, 'vehicleMode', ModoVeiculo.None, 'straightAggressiveness', 4, 'curveAggressiveness', 1, 'isCurveMode', false);
 userParameters.CoderInfo.StorageClass = 'Model default';
 
 
@@ -32,30 +32,25 @@ userParameters.CoderInfo.StorageClass = 'Model default';
 Controlador = Simulink.Parameter;
 Controlador.Value.Ts = 0.05;
 
+param_curva = load('Curva_Gains_Linear.mat');
 
-%Ks=[8.7696   -6.7563    0.1573   -0.8825]; % original, rodrigo
+Controlador.Value.Curva.Gains = single(param_curva.Gains_Curva);
+Controlador.Value.Curva.v_index = single(param_curva.vx_table);
+Controlador.Value.Curva.T_look = single(param_curva.T_look);
+Controlador.Value.Curva.omegam_sat = single(6);
 
-Ks = [0.1817   1    0.1089   1];      % Projeto baseado nos ganhos lineares [K_psi, K_r]=[41.28, 68.9].  B=1 
-
-% CME de 'psi'
-Controlador.Value.Curva.eps = Ks(1);
-Controlador.Value.Curva.Bps = Ks(2);
-Controlador.Value.Curva.urps = single([-15 15]');
-
-% CME de 'r'
-Controlador.Value.Curva.er = Ks(3);
-Controlador.Value.Curva.Br = Ks(4);
-Controlador.Value.Curva.urr = single([-15 15]');
-
+%% Controlador de curva — CME legado (teste comparativo)
+Ks_cme = [0.1817   1    0.1089   1];
+Controlador.Value.CurvaCME.eps = Ks_cme(1);
+Controlador.Value.CurvaCME.Bps = Ks_cme(2);
+Controlador.Value.CurvaCME.urps = single([-15 15]');
+Controlador.Value.CurvaCME.er = Ks_cme(3);
+Controlador.Value.CurvaCME.Br = Ks_cme(4);
+Controlador.Value.CurvaCME.urr = single([-15 15]');
 param_cme = load('Curva_Gains_Final.mat');
-%Controlador.Value.Curva.Gains = Simulink.Parameter;
 controllerGainsCurve = param_cme.CME_Gains;
-
-% Satura��o da velocidade angular de refer�ncia
-Controlador.Value.Curva.omegam_sat = single(15);
-
-% Dist�ncia 'Delta' do lookahead
-Controlador.Value.Curva.Delta = single(4);
+Controlador.Value.CurvaCME.omegam_sat = single(15);
+Controlador.Value.CurvaCME.Delta = single(4);
 
 %% Controlador 'Keep'
 param_keep_trator = load('Keep_Tractor_Sem_Implemento.mat');

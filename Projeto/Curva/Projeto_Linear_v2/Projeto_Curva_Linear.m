@@ -18,7 +18,7 @@ vx        = 2.0;
 cfg.Delta = vx * T_look;
 cfg.e0    = abs(gamma0_design) * cfg.Delta;
 gamma0    = -cfg.e0 / cfg.Delta;
-cfg.Q_psi = 1.0 / (gamma0)^2;
+cfg.Q_psi = 1.0 / (1.0*gamma0)^2;
 
 fprintf('=== Configuracao ===\n');
 fprintf('  vx=%.1f m/s, Delta=%.1f m (T_look=%.1fs)\n', vx, cfg.Delta, T_look);
@@ -34,6 +34,8 @@ opts = optimset('Display', 'iter', 'MaxIter', 50, 'TolX', 1e-8);
 cfg.plot = false;
 [Ks, Jopt] = fminsearch(@(k) objetivo_curva(k, p, vx, cfg), Ks0, opts);
 
+
+%Ks = [43.1006   52.7455];
 fprintf('\n=== Resultado ===\n');
 fprintf('  K_psi = %.4f\n', Ks(1));
 fprintf('  K_r   = %.4f\n', Ks(2));
