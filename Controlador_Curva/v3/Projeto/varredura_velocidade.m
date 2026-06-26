@@ -20,8 +20,8 @@ res = struct('vx', {}, 'K_psi', {}, 'K_r', {}, 'K_delta', {}, 'J', {}, ...
     'Pm', {}, 'tau_mf', {}, 'w_bw', {}, 'ts', {}, 'Mp', {}, ...
     'umax', {}, 'usat', {});
 
-Ks0 = [30, 40, 0];
-opts = optimset('Display', 'iter', 'MaxIter', 100, 'TolX', 1e-8);
+Ks0 = [84.11 -262.32   148.89];
+opts = optimset('Display', 'iter', 'MaxIter', 300, 'TolX', 1e-8);
 
 for k = 1:n_vx
     vx = vx_sweep(k);

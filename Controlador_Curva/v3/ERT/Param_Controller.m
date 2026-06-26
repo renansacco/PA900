@@ -36,6 +36,9 @@ Controlador.Value.Curva.v_index = single(param_curva.vx_table);
 Controlador.Value.Curva.omegam_sat = single(15);
 Controlador.Value.Curva.T_look = param_curva.cfg.T_look;
 
+% Parametros do veículo
+Controlador.Value.L = 2.5;              % distancia entre eixos do veículo
+Controlador.Value.k_delta = 0.0437;     % ganho estático do atuador. der(delta) = k_delta * omegam
 %% Controlador de curva â€” CME legado (teste comparativo)
 % Ks_cme = [0.1817   1    0.1089   1];
 % Controlador.Value.CurvaCME.eps = Ks_cme(1);

@@ -14,7 +14,7 @@ p = load(fullfile(proj_root, 'Planta', 'params', 'param_MF6713.mat'));
 cfg = config_curva();
 
 %% Caso a simular
-vx = 4.0;
+vx = 0.5;
 
 fprintf('=== Configuracao ===\n');
 fprintf('  vx=%.1f m/s\n', vx);
@@ -23,7 +23,7 @@ fprintf('  Q_psi=%.2f, Q_r=%.2f, R=%.4f\n', cfg.Q_psi, cfg.Q_r, cfg.R_ctrl);
 fprintf('  omega_sat=%.0f rad/s\n', cfg.omega_sat);
 
 %% Otimizacao
-Ks0 = [90, 90, 30];
+Ks0 = [84.11 -262.32   148.89];
 opts = optimset('Display', 'iter', 'MaxIter', 300, 'TolX', 1e-8);
 
 cfg.plot = false;

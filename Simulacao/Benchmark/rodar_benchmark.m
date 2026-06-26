@@ -31,6 +31,7 @@ trajs = tmp.trajs;
 params = load('param_MF6713.mat');
 Ts_guidance = 0.05;
 Param_Controller;
+omegam_sat = double(Controlador.Value.Curva.omegam_sat);
 
 %% Carrega modelo uma vez
 modelName = 'modelClosedLoop';
@@ -87,7 +88,7 @@ for it = 1:n_trajs
 
             try
                 out = sim(modelName);
-                metrics = calcular_metricas(out, t_descarte);
+                metrics = calcular_metricas(out, t_descarte, omegam_sat);
                 fprintf('OK (e_rms=%.3fm, e_max=%.3fm)\n', ...
                     metrics.e_lat_rms, metrics.e_lat_max);
             catch ME

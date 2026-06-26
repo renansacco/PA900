@@ -12,7 +12,7 @@ versionDir = fullfile(simDir, '..');
 proj_root  = fullfile(versionDir, '..', '..');
 
 addpath(fullfile(versionDir, 'ERT'));
-
+pathName = 'taipas_boeck.mat'
 %% Parametros do veiculo
 params = load(fullfile(proj_root, 'Planta', 'params', 'param_MF6713.mat'));
 
@@ -21,7 +21,7 @@ Ts_guidance = 0.05;
 useCourse = 1;
 wpDistance = 1;
 
-tmp = load(fullfile(proj_root, 'Guidance', 'trajetorias', 'guias', 'serpentina.mat'));
+tmp = load(fullfile(proj_root, 'Guidance', 'trajetorias', 'guias', pathName));
 guia = tmp.guia;
 
 wps_original = struct('x', guia.x, 'y', guia.y);
@@ -34,7 +34,7 @@ X0(2) = wps.y(1);
 X0(3) = atan2(wps.y(2) - wps.y(1), wps.x(2) - wps.x(1));
 
 %% Velocidade longitudinal (m/s)
-vx = 4;
+vx = 1.5;
 
 %% Parametros do Controller (buses, gains, etc.)
 Param_Controller;
@@ -50,7 +50,7 @@ Tsim = ceil(pathLen / vx) - 1;
 fprintf('Closed-loop v3: vx=%.1f m/s | Tsim=%.0f s | pathLen=%.0f m\n', vx, Tsim, pathLen);
 
 %% Roda simulacao
-modelName = 'modelClosedLoop';
+modelName = 'modelClosedLoop_v3';
 load_system(modelName);
 out = sim(modelName);
 fprintf('Simulacao concluida.\n');
@@ -60,10 +60,12 @@ r.out          = out;
 r.wps          = wps;
 r.wps_original = wps_original;
 r.wpDistance    = wpDistance;
-r.traj_name    = 'serpentina';
+r.traj_name    = pathName;
 r.ic_name      = 'alinhado';
 r.vx           = vx;
 r.useCourse    = useCourse;
 r.guia         = guia;
 r.metrics      = [];
+r.version      = 'v3';
+r.omegam_sat   = double(Controlador.Value.Curva.omegam_sat);
 plotar_cenario(r);

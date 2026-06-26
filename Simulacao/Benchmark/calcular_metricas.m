@@ -1,22 +1,9 @@
-function metrics = calcular_metricas(out, t_descarte)
+function metrics = calcular_metricas(out, t_descarte, omegam_sat)
 % CALCULAR_METRICAS  Computa metricas de desempenho a partir da saida do Simulink.
 %
-%   metrics = calcular_metricas(out, t_descarte)
-%
-%   Inputs:
-%       out         — SimulationOutput do sim('modelClosedLoop')
-%       t_descarte  — tempo inicial a descartar para metricas de regime [s]
-%
-%   Output:
-%       metrics — struct com campos:
-%           .e_lat_mean, .e_lat_max, .e_lat_rms
-%           .e_lat_hist_edges, .e_lat_hist_counts
-%           .ctrl_energy, .ctrl_smooth
-%           .overshoot, .settling_time
-%           .sat_omegam_pct, .sat_delta_pct
-%           .max_omegam, .max_delta_deg
+%   metrics = calcular_metricas(out, t_descarte, omegam_sat)
 
-    OMEGAM_SAT = 10;    % rad/s (limite fisico pratico)
+    if nargin < 3, omegam_sat = 15; end
     DELTA_MAX  = 50;     % graus (limite fisico)
 
     %% Extrai sinais
@@ -65,7 +52,7 @@ function metrics = calcular_metricas(out, t_descarte)
     end
 
     %% Saturacao
-    metrics.sat_omegam_pct = 100 * sum(abs(omegam) >= OMEGAM_SAT) / numel(omegam);
+    metrics.sat_omegam_pct = 100 * sum(abs(omegam) >= omegam_sat * 0.99) / numel(omegam);
     metrics.sat_delta_pct  = 100 * sum(abs(delta_deg) >= DELTA_MAX) / numel(delta_deg);
 
     %% Maximos absolutos

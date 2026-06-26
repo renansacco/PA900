@@ -24,8 +24,17 @@ function plotar_cenario(r, ctrl_label)
             titulo = sprintf('%s | heading', titulo);
         end
     end
+    if isfield(r, 'version')
+        titulo = sprintf('[%s] %s', r.version, titulo);
+    end
     if ~isempty(ctrl_label)
         titulo = sprintf('[%s] %s', ctrl_label, titulo);
+    end
+
+    if isfield(r, 'omegam_sat')
+        omegam_sat = r.omegam_sat;
+    else
+        omegam_sat = 15;
     end
 
     %% Extrai sinais
@@ -140,10 +149,12 @@ function plotar_cenario(r, ctrl_label)
     subplot(5,2,5);
     plot(t, omegam, 'DisplayName', 'omega_m'); hold on;
     plot(t, omegam_ref, '--', 'DisplayName', 'omega_{m,ref}');
+    yline( omegam_sat, 'k:', 'HandleVisibility', 'off');
+    yline(-omegam_sat, 'k:', 'HandleVisibility', 'off');
     grid on;
     ylabel('[rad/s]');
     legend('Location', 'best');
-    title('Velocidade angular motor');
+    title(sprintf('Velocidade angular motor (sat=%.0f)', omegam_sat));
 
     subplot(5,2,6);
     plot(t, delta_deg); grid on;
@@ -202,10 +213,10 @@ function plotar_cenario(r, ctrl_label)
     fprintf('  e_lat rms:       %.1f cm\n', rms(e)*100);
     fprintf('  e_psi rms:       %.2f deg\n', e_ang_rms);
     fprintf('  e_psi max:       %.2f deg\n', e_ang_max);
-    fprintf('  omega_m max:     %.1f rad/s\n', max(abs(omegam_ref)));
+    fprintf('  omega_m max:     %.1f rad/s  (sat=%.0f)\n', max(abs(omegam_ref)), omegam_sat);
     fprintf('  delta max:       %.1f deg\n', max(abs(delta_deg)));
-    fprintf('  sat omega_m:     %.1f%%\n', 100*sum(abs(omegam_ref) >= 5.9)/length(t));
-    fprintf('  sat delta:       %.1f%%\n', 100*sum(abs(delta_deg) >= 34)/length(t));
+    fprintf('  sat omega_m:     %.1f%%  (|omega| >= %.0f*0.99)\n', ...
+        100*sum(abs(omegam_ref) >= omegam_sat * 0.99)/length(t), omegam_sat);
 end
 
 function a = wrapToPi(a)
