@@ -1,11 +1,8 @@
 %% Paths
-ctrlDir = fileparts(mfilename('fullpath'));
-addpath(fullfile(ctrlDir, 'buses'));
-addpath(fullfile(ctrlDir, 'enums'));
-addpath(fullfile(ctrlDir, 'gains'));
-addpath(fullfile(pwd, 'Controller_ert_rtw'));
+ertDir = fileparts(mfilename('fullpath'));
+addpath(fullfile(ertDir, 'gains'));
 %% Buses
-Simulink.importExternalCTypes(fullfile(ctrlDir, 'Controller_ert_rtw', 'mg900_model_types.h'));
+%Simulink.importExternalCTypes(fullfile(ctrlDir, 'Controller_ert_rtw', 'mg900_model_types.h'));
 
 Bus_Controlador_UserInput
 Bus_Controlador
@@ -36,8 +33,8 @@ param_curva = load('Curva_Gains_Linear.mat');
 
 Controlador.Value.Curva.Gains = single(param_curva.Gains_Curva);
 Controlador.Value.Curva.v_index = single(param_curva.vx_table);
-Controlador.Value.Curva.T_look = single(param_curva.T_look);
-Controlador.Value.Curva.omegam_sat = single(6);
+Controlador.Value.Curva.omegam_sat = single(15);
+Controlador.Value.Curva.T_look = param_curva.cfg.T_look;
 
 %% Controlador de curva — CME legado (teste comparativo)
 % Ks_cme = [0.1817   1    0.1089   1];

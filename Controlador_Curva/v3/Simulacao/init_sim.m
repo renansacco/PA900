@@ -1,37 +1,69 @@
-% init_sim.m — Inicializacao da simulacao closed-loop
+% init_sim.m — Simulacao closed-loop v3 (init + sim + plot)
 %
-% Carrega parametros do veiculo, gains do Controller, e trajetoria.
-% Apos rodar este script, abrir sim_closedloop.slx
+% Carrega parametros, roda modelClosedLoop e plota resultados.
 %
 % Data: 2026-06-09 | Autor: Renan / Claude
 
 clear; close all;
 
+%% Paths
+simDir     = fileparts(mfilename('fullpath'));
+versionDir = fullfile(simDir, '..');
+proj_root  = fullfile(versionDir, '..', '..');
+
+addpath(fullfile(versionDir, 'ERT'));
+
 %% Parametros do veiculo
-params = load('param_MF6713.mat');
+params = load(fullfile(proj_root, 'Planta', 'params', 'param_MF6713.mat'));
 
 %% Guidance
 Ts_guidance = 0.05;
-useCourse=1;
-tmp = load('taipas_boeck.mat');
-%wps = [tmp.guias{10}.x, tmp.guias{10}.y];
-wps = tmp.guias{20};
+useCourse = 1;
+wpDistance = 1;
+
+tmp = load(fullfile(proj_root, 'Guidance', 'trajetorias', 'guias', 'serpentina.mat'));
+guia = tmp.guia;
+
+wps_original = struct('x', guia.x, 'y', guia.y);
+wps = resample_waypoints(wps_original, wpDistance);
 
 %% Condicoes iniciais da planta
-% X0 = [x, y, psi, r, vy, omega_m, delta]
 X0 = zeros(7, 1);
 X0(1) = wps.x(1);
 X0(2) = wps.y(1);
-X0(3) = atan2(wps.y(2) - wps.y(1), wps.x(2) - wps.x(1));  % psi0 alinhado com a guia
+X0(3) = atan2(wps.y(2) - wps.y(1), wps.x(2) - wps.x(1));
 
 %% Velocidade longitudinal (m/s)
-vx = 2.0;
+vx = 4;
 
 %% Parametros do Controller (buses, gains, etc.)
 Param_Controller;
 
+% Curvatura suavizada para lookup no Simulink (feedforward)
+Controlador.Value.Curva.kappa_s   = single(guia.s);
+Controlador.Value.Curva.kappa_val = single(guia.kappa_smooth);
+
 %% Tempo de simulacao
 pathLen = sum(sqrt(diff(wps.x).^2 + diff(wps.y).^2));
-Tsim = ceil(pathLen / vx) + 10;
+Tsim = ceil(pathLen / vx) - 1;
 
-fprintf('Closed-loop: vx=%.1f m/s | Tsim=%.0f s | pathLen=%.0f m\n', vx, Tsim, pathLen);
+fprintf('Closed-loop v3: vx=%.1f m/s | Tsim=%.0f s | pathLen=%.0f m\n', vx, Tsim, pathLen);
+
+%% Roda simulacao
+modelName = 'modelClosedLoop';
+load_system(modelName);
+out = sim(modelName);
+fprintf('Simulacao concluida.\n');
+
+%% Plot (usa plotar_cenario do Benchmark)
+r.out          = out;
+r.wps          = wps;
+r.wps_original = wps_original;
+r.wpDistance    = wpDistance;
+r.traj_name    = 'serpentina';
+r.ic_name      = 'alinhado';
+r.vx           = vx;
+r.useCourse    = useCourse;
+r.guia         = guia;
+r.metrics      = [];
+plotar_cenario(r);

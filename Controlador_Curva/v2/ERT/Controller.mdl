@@ -43,7 +43,7 @@ Model {
       UnitExpr		      "inherit"
     }
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.87"
+    ComputedModelVersion    "1.88"
     NumModelReferences	    0
     NumTestPointedSignals   19
     TestPointedSignal {
@@ -231,12 +231,6 @@ Model {
   WebScopes_FoundationPlugin "on"
   DiagnosticSuppressor	  "on"
   LogicAnalyzerPlugin	  "on"
-  LogicAnalyzerSignalOrdering "2cb45c0d-02f5-4e94-a7a3-ed1dfa36f295,c611a113-2c01-4ab6-af66-7e2ca96a4101,ea7fc9d4-9f9f"
-  "-4709-858d-12dc54604169,2e411adb-ab1d-46a5-a4ae-885cbcbb6739,f8d8ef71-c5ec-42bb-b8ee-4d2e05a69a3c,b92ee06a-eb52-46f5"
-  "-99a2-06ca737f5bce,d1623378-04e7-4b1f-84c4-88df0144cee0,3052742d-b294-407f-905c-89bd1ac60f36,e3201243-9d3d-4f8c-aae0"
-  "-edd5e04ee2ea,d2fc91cc-3d82-4e1f-9850-ba6515d13732,3f9ca4af-73a8-48a8-8674-be30647f3494,4aea9460-1137-49b3-a4dc-c792"
-  "0125a7fa,f21e482e-3964-4191-9410-1d5e3c871e08,0a222781-508f-4dd9-804f-73af44e4c3de,23420908-dfa9-4d3b-a2c2-6dffdbbf1"
-  "7c8"
   AnimationPlugin	  "on"
   NotesPlugin		  "on"
   BirdsEyeScopePlugin	  "on"
@@ -272,7 +266,7 @@ Model {
       $ObjectID		      3
       $ClassName	      "Simulink.WindowInfo"
       IsActive		      [1]
-      Location		      [-7.0, -7.0, 1934.0, 1054.0]
+      Location		      [1913.0, -7.0, 1934.0, 1054.0]
       Object {
 	$PropName		"ModelBrowserInfo"
 	$ObjectID		4
@@ -299,10 +293,10 @@ Model {
 	  IsTabbed		  [1]
 	  ViewObjType		  "SimulinkSubsys"
 	  LoadSaveID		  "243"
-	  Extents		  [2400.0, 1350.0]
-	  ZoomFactor		  [0.98780487804878059]
+	  Extents		  [1920.0, 1080.0]
+	  ZoomFactor		  [0.79024390243902443]
 	  Offset		  [-1965.4693022218826, -557.22454364529062]
-	  SceneRectInView	  [-1965.4693022218826, -557.22454364529062, 1943.7037037037035, 1093.3333333333333]
+	  SceneRectInView	  [-1965.4693022218826, -557.22454364529062, 1943.7037037037037, 1093.3333333333333]
 	}
 	Object {
 	  $ObjectID		  7
@@ -310,8 +304,8 @@ Model {
 	  IsTabbed		  [1]
 	  ViewObjType		  "SimulinkSubsys"
 	  LoadSaveID		  "174"
-	  Extents		  [2400.0, 1350.0]
-	  ZoomFactor		  [0.6585365853658538]
+	  Extents		  [1920.0, 1080.0]
+	  ZoomFactor		  [0.52682926829268306]
 	  Offset		  [-882.10923864402, -201.00887194197685]
 	  SceneRectInView	  [-882.10923864402, -201.00887194197685, 2915.5555555555547, 1639.9999999999995]
 	}
@@ -322,9 +316,9 @@ Model {
 	  ViewObjType		  "SimulinkTopLevel"
 	  LoadSaveID		  "0"
 	  Extents		  [2126.0, 993.0]
-	  ZoomFactor		  [1.25]
-	  Offset		  [2249.6017099866622, 1377.0411316315895]
-	  SceneRectInView	  [2249.6017099866622, 1377.0411316315895, 1360.64, 635.52]
+	  ZoomFactor		  [0.59999999999999987]
+	  Offset		  [1774.9577099866622, 859.28313163159]
+	  SceneRectInView	  [1774.9577099866622, 859.28313163159, 2834.6666666666674, 1324.0000000000005]
 	}
 	Object {
 	  $ObjectID		  9
@@ -332,10 +326,10 @@ Model {
 	  IsTabbed		  [1]
 	  ViewObjType		  "SimulinkSubsys"
 	  LoadSaveID		  "18"
-	  Extents		  [2400.0, 1241.0]
+	  Extents		  [1920.0, 1080.0]
 	  ZoomFactor		  [1.0]
-	  Offset		  [-782.5, -436.0]
-	  SceneRectInView	  [-782.5, -436.0, 1920.0, 993.0]
+	  Offset		  [-590.5, -371.5]
+	  SceneRectInView	  [-590.5, -371.5, 1536.0, 864.0]
 	}
 	Object {
 	  $ObjectID		  10
@@ -345,8 +339,8 @@ Model {
 	  LoadSaveID		  "487"
 	  Extents		  [2126.0, 993.0]
 	  ZoomFactor		  [0.79999999999999993]
-	  Offset		  [-401.656908768537, 143.67374419996634]
-	  SceneRectInView	  [-401.656908768537, 143.67374419996634, 2126.0000000000005, 993.00000000000011]
+	  Offset		  [-601.71118794143888, 269.42612515234873]
+	  SceneRectInView	  [-601.71118794143888, 269.42612515234873, 2126.0000000000005, 993.00000000000011]
 	}
 	Object {
 	  $ObjectID		  11
@@ -388,19 +382,6 @@ Model {
 	Dimension		2
 	Object {
 	  $ObjectID		  14
-	  Type			  "GLUE2:SpreadSheet"
-	  ID			  "ModelData"
-	  Visible		  [1]
-	  CreateCallback	  "DataView.createSpreadSheetComponent"
-	  UserData		  ""
-	  Floating		  [0]
-	  DockPosition		  "Bottom"
-	  Width			  [1761]
-	  Height		  [173]
-	  Minimized		  "On"
-	}
-	Object {
-	  $ObjectID		  15
 	  Type			  "GLUE2:PropertyInspector"
 	  ID			  "Property Inspector"
 	  Visible		  [1]
@@ -410,6 +391,19 @@ Model {
 	  DockPosition		  "Right"
 	  Width			  [512]
 	  Height		  [384]
+	  Minimized		  "On"
+	}
+	Object {
+	  $ObjectID		  15
+	  Type			  "GLUE2:SpreadSheet"
+	  ID			  "ModelData"
+	  Visible		  [1]
+	  CreateCallback	  "DataView.createSpreadSheetComponent"
+	  UserData		  ""
+	  Floating		  [0]
+	  DockPosition		  "Bottom"
+	  Width			  [1761]
+	  Height		  [173]
 	  Minimized		  "On"
 	}
 	PropName		"DockComponentsInfo"
@@ -440,9 +434,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "renan"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Fri Jun 19 17:27:14 2026"
-  RTWModifiedTimeStamp	  703790814
-  ModelVersionFormat	  "1.%<AutoIncrement:87>"
+  LastModifiedDate	  "Sat Jun 20 15:33:25 2026"
+  RTWModifiedTimeStamp	  703870391
+  ModelVersionFormat	  "1.%<AutoIncrement:88>"
   SampleTimeColors	  off
   SampleTimeAnnotations	  on
   LibraryLinkDisplay	  "disabled"
@@ -2790,7 +2784,7 @@ Model {
   }
   System {
     Name		    "Controller"
-    Location		    [-7, -7, 1927, 1047]
+    Location		    [1913, -7, 3847, 1047]
     Open		    on
     PortBlocksUseCompactNotation off
     SetExecutionDomain	    off
@@ -2805,7 +2799,7 @@ Model {
     TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
     TiledPageScale	    1
     ShowPageBoundaries	    off
-    ZoomFactor		    "125"
+    ZoomFactor		    "60"
     ReportName		    "simulink-default.rpt"
     SIDHighWatermark	    "602"
     SimulinkSubDomain	    "Simulink"
@@ -3417,7 +3411,7 @@ Model {
       ContentPreviewEnabled   on
       System {
 	Name			"Controle_Curva"
-	Location		[-7, -7, 1927, 1047]
+	Location		[1913, -7, 3847, 1047]
 	Open			on
 	PortBlocksUseCompactNotation off
 	SetExecutionDomain	off
@@ -3601,7 +3595,6 @@ Model {
 	  Port {
 	    PortNumber		    1
 	    Name		    "r_erro"
-	    DataLogging		    on
 	    DataLoggingSampleTime   "0.01"
 	  }
 	}
@@ -3620,7 +3613,6 @@ Model {
 	  Port {
 	    PortNumber		    1
 	    Name		    "r_erro"
-	    DataLogging		    on
 	    DataLoggingSampleTime   "0.01"
 	  }
 	}
@@ -3643,7 +3635,6 @@ Model {
 	    Name		    "u_CME_psie"
 	    PropagatedSignals	    "u"
 	    TestPoint		    on
-	    DataLogging		    on
 	    DataLoggingSampleTime   "0.01"
 	  }
 	  System {
@@ -3816,7 +3807,6 @@ Model {
 	    Name		    "u_CME_r"
 	    PropagatedSignals	    "u"
 	    TestPoint		    on
-	    DataLogging		    on
 	    DataLoggingSampleTime   "0.01"
 	  }
 	  System {
@@ -3994,22 +3984,6 @@ Model {
 	  Position		  [315, 365, 345, 395]
 	  ZOrder		  6223
 	  Value			  "2.0"
-	}
-	Block {
-	  BlockType		  Constant
-	  Name			  "Constant4"
-	  SID			  "507"
-	  Position		  [465, 1045, 495, 1075]
-	  ZOrder		  6234
-	  Value			  "81"
-	}
-	Block {
-	  BlockType		  Constant
-	  Name			  "Constant5"
-	  SID			  "508"
-	  Position		  [440, 915, 470, 945]
-	  ZOrder		  6235
-	  Value			  "75"
 	}
 	Block {
 	  BlockType		  Constant
@@ -4255,7 +4229,6 @@ Model {
 	    Name		    "psi_ref"
 	    PropagatedSignals	    "psi_ref"
 	    TestPoint		    on
-	    DataLogging		    on
 	    DataLoggingSampleTime   "0.01"
 	  }
 	}
@@ -4373,7 +4346,6 @@ Model {
 	    PortNumber		    1
 	    Name		    "u_CME_Linearizado_r"
 	    TestPoint		    on
-	    DataLogging		    on
 	    DataLoggingSampleTime   "0.01"
 	  }
 	}
@@ -4392,7 +4364,6 @@ Model {
 	    PortNumber		    1
 	    Name		    "u_CME_linearizado_psie"
 	    TestPoint		    on
-	    DataLogging		    on
 	    DataLoggingSampleTime   "0.01"
 	  }
 	}
@@ -4714,7 +4685,6 @@ Model {
 	    PortNumber		    1
 	    Name		    "psi_error"
 	    PropagatedSignals	    "ang_error"
-	    DataLogging		    on
 	    DataLoggingSampleTime   "0.01"
 	  }
 	  System {
@@ -4862,7 +4832,6 @@ Model {
 	    PortNumber		    1
 	    Name		    "r_ref"
 	    TestPoint		    on
-	    DataLogging		    on
 	    DataLoggingSampleTime   "0.01"
 	  }
 	}
@@ -5766,18 +5735,18 @@ Model {
 	  DstPort		  2
 	}
 	Line {
-	  ZOrder		  98
-	  SrcBlock		  "Constant4"
+	  ZOrder		  103
+	  SrcBlock		  "From18"
 	  SrcPort		  1
-	  Points		  [19, 0; 0, -28; -53, 0; 0, -22]
+	  Points		  [33, 0; 0, -35]
 	  DstBlock		  "Product2"
 	  DstPort		  2
 	}
 	Line {
-	  ZOrder		  99
-	  SrcBlock		  "Constant5"
+	  ZOrder		  102
+	  SrcBlock		  "From14"
 	  SrcPort		  1
-	  Points		  [19, 0; 0, -28; -40, 0; 0, -22]
+	  Points		  [30, 0; 0, -40]
 	  DstBlock		  "Product1"
 	  DstPort		  2
 	}
@@ -5836,7 +5805,7 @@ Model {
 	  BackgroundColor	  "[0.901961, 0.901961, 1.000000]"
 	  DropShadow		  on
 	  AnnotationType	  "area_annotation"
-	  ZOrder		  19
+	  ZOrder		  22
 	  FontSize		  12
 	}
 	Annotation {
@@ -5850,7 +5819,7 @@ Model {
 	  BackgroundColor	  "[0.901961, 0.901961, 1.000000]"
 	  DropShadow		  on
 	  AnnotationType	  "area_annotation"
-	  ZOrder		  20
+	  ZOrder		  23
 	  FontSize		  12
 	}
 	Annotation {
@@ -5864,7 +5833,7 @@ Model {
 	  BackgroundColor	  "[0.901961, 0.901961, 1.000000]"
 	  DropShadow		  on
 	  AnnotationType	  "area_annotation"
-	  ZOrder		  21
+	  ZOrder		  24
 	  FontSize		  12
 	}
       }
@@ -6556,7 +6525,7 @@ Model {
 	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
 	TiledPageScale		1
 	ShowPageBoundaries	off
-	ZoomFactor		"66"
+	ZoomFactor		"53"
 	SimulinkSubDomain	"Simulink"
 	Block {
 	  BlockType		  Inport
@@ -8357,7 +8326,7 @@ Model {
 	  BackgroundColor	  "[0.901961, 0.901961, 1.000000]"
 	  DropShadow		  on
 	  AnnotationType	  "area_annotation"
-	  ZOrder		  176
+	  ZOrder		  179
 	  FontSize		  12
 	}
 	Annotation {
@@ -8370,7 +8339,7 @@ Model {
 	  BackgroundColor	  "[0.901961, 0.901961, 1.000000]"
 	  DropShadow		  on
 	  AnnotationType	  "area_annotation"
-	  ZOrder		  175
+	  ZOrder		  178
 	  FontSize		  12
 	}
 	Annotation {
@@ -8384,7 +8353,7 @@ Model {
 	  BackgroundColor	  "[0.901961, 0.901961, 1.000000]"
 	  DropShadow		  on
 	  AnnotationType	  "area_annotation"
-	  ZOrder		  177
+	  ZOrder		  180
 	  FontSize		  12
 	}
       }
@@ -8416,7 +8385,7 @@ Model {
 	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
 	TiledPageScale		1
 	ShowPageBoundaries	off
-	ZoomFactor		"99"
+	ZoomFactor		"79"
 	SimulinkSubDomain	"Simulink"
 	Block {
 	  BlockType		  Inport
@@ -10132,7 +10101,7 @@ Model {
 	  BackgroundColor	  "[0.901961, 0.901961, 1.000000]"
 	  DropShadow		  on
 	  AnnotationType	  "area_annotation"
-	  ZOrder		  149
+	  ZOrder		  150
 	  FontSize		  12
 	}
 	Annotation {
@@ -11077,7 +11046,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      1215
+      ZOrder		      1219
       FontSize		      12
     }
     Annotation {
@@ -11091,7 +11060,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      1214
+      ZOrder		      1218
       FontSize		      12
     }
     Annotation {
@@ -11138,7 +11107,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      1213
+      ZOrder		      1217
       FontSize		      12
     }
     Annotation {
@@ -11152,7 +11121,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      1212
+      ZOrder		      1216
       FontSize		      12
     }
   }
@@ -11256,8 +11225,6 @@ Stateflow {
     ssIdNumber		    1
     type		    OR_STATE
     decomposition	    CLUSTER_STATE
-    eml {
-    }
     firstTransition	    11
   }
   state {
@@ -11271,8 +11238,6 @@ Stateflow {
     ssIdNumber		    26
     type		    OR_STATE
     decomposition	    CLUSTER_STATE
-    eml {
-    }
   }
   state {
     id			    6
@@ -11285,8 +11250,6 @@ Stateflow {
     ssIdNumber		    36
     type		    OR_STATE
     decomposition	    CLUSTER_STATE
-    eml {
-    }
   }
   state {
     id			    7
@@ -11299,8 +11262,6 @@ Stateflow {
     ssIdNumber		    28
     type		    OR_STATE
     decomposition	    CLUSTER_STATE
-    eml {
-    }
   }
   state {
     id			    8
@@ -11314,8 +11275,6 @@ Stateflow {
     ssIdNumber		    3
     type		    OR_STATE
     decomposition	    CLUSTER_STATE
-    eml {
-    }
   }
   state {
     id			    9
@@ -11328,8 +11287,6 @@ Stateflow {
     ssIdNumber		    19
     type		    OR_STATE
     decomposition	    CLUSTER_STATE
-    eml {
-    }
   }
   state {
     id			    10
@@ -11342,8 +11299,6 @@ Stateflow {
     ssIdNumber		    10
     type		    OR_STATE
     decomposition	    CLUSTER_STATE
-    eml {
-    }
   }
   transition {
     id			    11
@@ -11882,8 +11837,6 @@ Stateflow {
     screen		    [1 1 3600 1200 1.180555555555556]
     treeNode		    [0 34 0 0]
     viewObj		    33
-    subviewS {
-    }
     ssIdHighWaterMark	    7
     decomposition	    CLUSTER_CHART
     type		    EML_CHART
@@ -12057,8 +12010,6 @@ Stateflow {
     screen		    [1 1 3600 1200 1.180555555555556]
     treeNode		    [0 43 0 0]
     viewObj		    42
-    subviewS {
-    }
     ssIdHighWaterMark	    6
     decomposition	    CLUSTER_CHART
     type		    EML_CHART
@@ -12211,8 +12162,6 @@ Stateflow {
     screen		    [1 1 3600 1200 1.180555555555556]
     treeNode		    [0 51 0 0]
     viewObj		    50
-    subviewS {
-    }
     ssIdHighWaterMark	    8
     decomposition	    CLUSTER_CHART
     type		    EML_CHART
@@ -12617,8 +12566,6 @@ Stateflow {
     screen		    [1 1 3600 1200 1.180555555555556]
     treeNode		    [0 71 0 0]
     viewObj		    70
-    subviewS {
-    }
     ssIdHighWaterMark	    8
     decomposition	    CLUSTER_CHART
     type		    EML_CHART

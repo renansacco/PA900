@@ -1,6 +1,7 @@
 %% Varredura de velocidades — mapa de ganhos do controlador de curva
 %
-% Otimiza [K_psi, K_r] para cada vx com Delta = vx * T_look.
+% Otimiza [K_psi, K_r] para cada vx.
+% Referencia: step de heading gamma0.
 % Config carregada de config_curva.m.
 
 clear; close all;
@@ -11,14 +12,14 @@ addpath(fullfile(proj_root, 'Planta'));
 
 %% Planta e config
 p = load(fullfile(proj_root, 'Planta', 'params', 'param_MF6713.mat'));
-[cfg, gamma0_design, T_look] = config_curva();
+cfg = config_curva();
 
 %% Varredura
 vx_sweep = 0.5:0.5:4.0;
 n_vx = length(vx_sweep);
 
-res = struct('vx', {}, 'Delta', {}, 'K_psi', {}, 'K_r', {}, 'J', {}, ...
-    'Pm', {}, 'tau_mf_ratio', {}, 'omega_ratio', {}, 'ts', {}, 'Mp', {}, ...
+res = struct('vx', {}, 'K_psi', {}, 'K_r', {}, 'J', {}, ...
+    'Pm', {}, 'tau_mf', {}, 'w_bw', {}, 'ts', {}, 'Mp', {}, ...
     'umax', {}, 'usat', {});
 
 Ks0 = [30, 40];
@@ -26,13 +27,9 @@ opts = optimset('Display', 'iter', 'MaxIter', 50, 'TolX', 1e-8);
 
 for k = 1:n_vx
     vx = vx_sweep(k);
-    cfg.Delta = vx * T_look;
-    cfg.e0    = abs(gamma0_design) * cfg.Delta;
-    gamma0    = -cfg.e0 / cfg.Delta;
-    cfg.Q_psi = 1.0 / (gamma0)^2;
 
     fprintf('\n========================================\n');
-    fprintf('  vx = %.1f m/s, Delta = %.1f m (T_look=%.1fs)\n', vx, cfg.Delta, T_look);
+    fprintf('  vx = %.1f m/s\n', vx);
     fprintf('========================================\n');
 
     % Otimizacao
@@ -50,11 +47,10 @@ for k = 1:n_vx
     set(gcf, 'Name', sprintf('Simulacao vx=%.0f', vx));
 
     % Metricas
-    tau_la = cfg.Delta / vx;
-    psi_ref_final = gamma0 * exp(-t / tau_la);
-    e_psi = psi_ref_final - X(:, 3);
+    gamma0 = cfg.gamma0;
+    e_psi = gamma0 - X(:, 3);
     info.ts       = settling_time(t, e_psi, 0.02 * abs(gamma0));
-    info.Mp       = max(0, max(e_psi)) / abs(e_psi(1));
+    info.Mp       = max(0, max(X(:,3)) - gamma0) / abs(gamma0);
     info.umax     = max(abs(U(:,1)));
     info.usat_pct = 100 * sum(abs(U(:,1)) >= cfg.omega_sat * 0.99) / length(t);
 
@@ -69,13 +65,12 @@ for k = 1:n_vx
 
     % Salva resultados
     res(k).vx = vx;
-    res(k).Delta = cfg.Delta;
     res(k).K_psi = Ks(1);
     res(k).K_r = Ks(2);
     res(k).J = Jopt;
     res(k).Pm = mf.Pm;
-    res(k).tau_mf_ratio = mf.tau_mf / tau_la;
-    res(k).omega_ratio = (vx / cfg.Delta) / mf.w_bw;
+    res(k).tau_mf = mf.tau_mf;
+    res(k).w_bw = mf.w_bw;
     res(k).ts = info.ts;
     res(k).Mp = info.Mp;
     res(k).umax = info.umax;
@@ -86,14 +81,15 @@ end
 
 %% Tabela resumo
 fprintf('\n\n============================================================\n');
-fprintf('  RESUMO — T_look=%.1fs, gamma0_design=%.0f deg\n', T_look, rad2deg(gamma0_design));
+fprintf('  RESUMO — gamma0=%.0f deg, tau_mf_max=%.2f s\n', ...
+    rad2deg(cfg.gamma0), cfg.tau_mf_target);
 fprintf('============================================================\n');
-fprintf('%5s %6s %7s %7s %6s %10s %10s %6s %6s\n', ...
-    'vx', 'Delta', 'K_psi', 'K_r', 'Pm', 'tau/tau_la', 'wla/wbw', 'ts', 'Mp%');
+fprintf('%5s %7s %7s %6s %8s %8s %6s %6s\n', ...
+    'vx', 'K_psi', 'K_r', 'Pm', 'tau_mf', 'w_bw', 'ts', 'Mp%');
 for k = 1:n_vx
-    fprintf('%5.1f %6.1f %7.2f %7.2f %6.1f %10.2f %10.2f %6.2f %5.1f\n', ...
-        res(k).vx, res(k).Delta, res(k).K_psi, res(k).K_r, ...
-        res(k).Pm, res(k).tau_mf_ratio, res(k).omega_ratio, ...
+    fprintf('%5.1f %7.2f %7.2f %6.1f %8.3f %8.2f %6.2f %5.1f\n', ...
+        res(k).vx, res(k).K_psi, res(k).K_r, ...
+        res(k).Pm, res(k).tau_mf, res(k).w_bw, ...
         res(k).ts, res(k).Mp*100);
 end
 
@@ -107,10 +103,10 @@ ylabel('Pm [deg]'); xlabel('v_x [m/s]'); grid on;
 title('Margem de fase');
 
 subplot(2,2,2);
-plot([res.vx], [res.tau_mf_ratio], 'ko-', 'LineWidth', 1.5, 'MarkerFaceColor', 'k');
-yline(cfg.tau_ratio_max, 'r--', sprintf('max=%.2f', cfg.tau_ratio_max));
-ylabel('\tau_{MF} / \tau_{la}'); xlabel('v_x [m/s]'); grid on;
-title('Razao de tempo (bandwidth)');
+plot([res.vx], [res.tau_mf], 'ko-', 'LineWidth', 1.5, 'MarkerFaceColor', 'k');
+yline(cfg.tau_mf_target, 'r--', sprintf('\\tau_{max}=%.2fs', cfg.tau_mf_target));
+ylabel('\tau_{MF} [s]'); xlabel('v_x [m/s]'); grid on;
+title('Constante de tempo MF');
 
 subplot(2,2,3);
 plot([res.vx], [res.K_psi], 'bo-', 'LineWidth', 1.5, 'MarkerFaceColor', 'b'); hold on;
@@ -125,22 +121,22 @@ yline(cfg.omega_sat, 'r--', '\omega_{sat}');
 ylabel('\omega_m max [rad/s]'); xlabel('v_x [m/s]'); grid on;
 title('Pico de atuacao');
 
-sgtitle(sprintf('Varredura vx — T_{look}=%.1fs, \\gamma_0=%.0f°', T_look, rad2deg(gamma0_design)));
+sgtitle(sprintf('Varredura vx — \\gamma_0=%.0f°, \\tau_{mf,max}=%.2fs', ...
+    rad2deg(cfg.gamma0), cfg.tau_mf_target));
 
-%% Salva mapa de ganhos — formato compativel com Param_Controller
-% Gains_Curva(iv, ig): iv=indice de velocidade, ig=1:K_psi, 2:K_r
+%% Salva mapa de ganhos
 vx_table = vx_sweep;
 Gains_Curva = zeros(n_vx, 2);
 for k = 1:n_vx
     Gains_Curva(k, :) = [res(k).K_psi, res(k).K_r];
 end
 
-Desc = sprintf('Ganhos lineares curva. T_look=%.1fs, gamma0=%.0f deg, omega_sat=%.0f rad/s, Pm_min=%.0f deg, tau_ratio_max=%.2f', ...
-    T_look, rad2deg(gamma0_design), cfg.omega_sat, cfg.Pm_min, cfg.tau_ratio_max);
+Desc = sprintf('Ganhos lineares curva. gamma0=%.0f deg, omega_sat=%.0f rad/s, Pm_min=%.0f deg, tau_mf_max=%.2fs', ...
+    rad2deg(cfg.gamma0), cfg.omega_sat, cfg.Pm_min, cfg.tau_mf_target);
 
-gains_dir = fullfile(proj_root, 'Controller', 'gains');
+gains_dir = fullfile(fileparts(mfilename('fullpath')), '..', 'ERT', 'gains');
 name = fullfile(gains_dir, 'Curva_Gains_Linear.mat');
-save(name, 'Gains_Curva', 'vx_table', 'T_look', 'Desc');
+save(name, 'Gains_Curva', 'vx_table', 'Desc', 'cfg');
 fprintf('\nGanhos salvos em: %s\n', name);
 
 %% -----------------------------------------------------------------------
@@ -156,7 +152,6 @@ end
 function mf = analise_malha_fechada(p, vx, Ks, cfg)
     K_psi = Ks(1);
     K_r   = Ks(2);
-    tau_la = cfg.Delta / vx;
 
     Xe = zeros(7, 1);
     Ue = [0; vx];
@@ -191,6 +186,6 @@ function mf = analise_malha_fechada(p, vx, Ks, cfg)
     mf.tau_mf = 1 / w_bw;
 
     fprintf('\n=== Malha Fechada (vx=%.1f) ===\n', vx);
-    fprintf('  Bandwidth: %.2f rad/s, tau_MF: %.2f s\n', w_bw, 1/w_bw);
-    fprintf('  tau_MF/tau_la: %.2f, Pm: %.1f deg\n', (1/w_bw)/tau_la, Pm);
+    fprintf('  Bandwidth: %.2f rad/s, tau_MF: %.3f s\n', w_bw, 1/w_bw);
+    fprintf('  Pm: %.1f deg\n', Pm);
 end
