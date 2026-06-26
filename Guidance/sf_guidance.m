@@ -6,7 +6,7 @@ function [sys,x0,str,ts] = sf_guidance(t, x, u, flag, waypoints, Ts)
 %       Ts        — sample time [s]
 %
 %   Inputs  (3): U = [x, y, psi]
-%   Outputs (7): Y = [lateralError, psiError, alpha, curvature, lineIndex, status, t]
+%   Outputs (8): Y = [lateralError, psiError, alpha, curvature, lineIndex, status, t, s]
 
 persistent state
 
@@ -15,7 +15,7 @@ switch flag
         sizes = simsizes;
         sizes.NumContStates  = 0;
         sizes.NumDiscStates  = 0;
-        sizes.NumOutputs     = 7;
+        sizes.NumOutputs     = 8;
         sizes.NumInputs      = 3;
         sizes.DirFeedthrough = 1;
         sizes.NumSampleTimes = 1;
@@ -29,7 +29,7 @@ switch flag
         pose = [u(1), u(2), u(3)];
         [out, state] = guidance_step(pose, state);
         sys = [out.lateralError; out.psiError; out.alpha; ...
-               out.curvature; out.lineIndex; out.status; out.t];
+               out.curvature; out.lineIndex; out.status; out.t; out.s];
 
     otherwise
         sys = [];

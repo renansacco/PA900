@@ -9,10 +9,10 @@ clear; close all;
 
 %% Paths
 benchDir = fileparts(mfilename('fullpath'));
-addpath(fullfile(benchDir, 'trajetorias'));
+addpath(fullfile(benchDir, 'trajetorias'));  % benchmark_trajs.mat
 
 %% Config
-velocidades = [2];  % m/s
+velocidades = [2,3];  % m/s
 t_descarte  = 2.0;              % s — descarte para metricas de regime
 useCourse   = 1;                % 0 = heading, 1 = course (psi+beta) no lookahead
 wpDistance_guidance = 3.0;       % resample waypoints (igual ao embarcado). 0 = sem resample

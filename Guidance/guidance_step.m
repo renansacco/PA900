@@ -15,13 +15,7 @@ function [out, state] = guidance_step(pose, state)
 %       out.lineIndex    — indice do segmento ativo (wpIndex)
 %       out.status       — 0=Inactive, 1=Active, 2=EndOfPath, 3=Diverged
 %       out.t            — parametro da biseccao [0,1]
-%
-%   Algoritmo:
-%   1. Busca do segmento mais proximo (distancia ponto-segmento)
-%   2. Calculo dos coeficientes B-spline cubico uniforme
-%   3. Biseccao do polinomio de 5o grau (derivada da dist^2) em [-0.2, 1.2]
-%   4. Calculo de alpha, erro lateral, psiError, curvatura via derivadas da spline
-%   5. Avanco de waypoint e deteccao de divergencia
+%       out.s            — arclength acumulado [m]
 %
 %   Data: 2026-06-09 | Autor: Renan / Claude
 
@@ -33,6 +27,7 @@ function [out, state] = guidance_step(pose, state)
     out.lineIndex    = 0;
     out.status       = state.status;
     out.t            = 0;
+    out.s            = state.sAccum;
 
     % Early exit: no path or terminal state
     if ~state.isReady || state.status == 0
@@ -146,6 +141,16 @@ function [out, state] = guidance_step(pose, state)
         state.status = 3;  % Diverged
     end
 
+    % --- 7. Compute arc length s (incremental) ---
+    if isnan(state.lastSx)
+        state.lastSx = Sx;
+        state.lastSy = Sy;
+    end
+    ds = sqrt((Sx - state.lastSx)^2 + (Sy - state.lastSy)^2);
+    state.sAccum = state.sAccum + ds;
+    state.lastSx = Sx;
+    state.lastSy = Sy;
+
     % --- Output ---
     state.lastAlpha  = alpha;
     out.lateralError = lateralError;
@@ -155,6 +160,7 @@ function [out, state] = guidance_step(pose, state)
     out.lineIndex    = state.wpIndex;
     out.status       = state.status;
     out.t            = t;
+    out.s            = state.sAccum;
 end
 
 % =========================================================================
@@ -220,23 +226,9 @@ end
 
 function [xc, yc, ok] = computeSpline(wx, wy, n, wpIndex)
 % Compute uniform cubic B-spline coefficients for segment ending at wpIndex.
-%
-% B-spline basis matrix (uniform):
-%   M = (1/6) * [ 1  -3   3  -1 ;
-%                  4   0  -6   3 ;
-%                  1   3   3  -3 ;
-%                  0   0   0   1 ]
-%
-% S(t) = [1, t, t^2, t^3] * M * [P0; P1; P2; P3]
-%      = a + b*t + c*t^2 + d*t^3
-
     ok = true;
 
-    % Select 4 control points with phantom mirroring at boundaries
-    % For segment ending at wpIndex, control points are
-    % [wpIndex-2, wpIndex-1, wpIndex, wpIndex+1]
     if wpIndex == 1
-        % First segment: phantom P0
         P1x = wx(1); P1y = wy(1);
         P2x = wx(2); P2y = wy(2);
         P0x = 2*P1x - P2x;  P0y = 2*P1y - P2y;
@@ -246,7 +238,6 @@ function [xc, yc, ok] = computeSpline(wx, wy, n, wpIndex)
             P3x = 2*P2x - P1x; P3y = 2*P2y - P1y;
         end
     elseif wpIndex >= n
-        % Last segment: phantom P3
         if wpIndex > n
             ok = false;
             xc = zeros(1,4); yc = zeros(1,4);
@@ -261,7 +252,6 @@ function [xc, yc, ok] = computeSpline(wx, wy, n, wpIndex)
             P0x = 2*P1x - P2x; P0y = 2*P1y - P2y;
         end
     else
-        % Middle segment: control points [wpIndex-2, wpIndex-1, wpIndex, wpIndex+1]
         P1x = wx(wpIndex-1); P1y = wy(wpIndex-1);
         P2x = wx(wpIndex);   P2y = wy(wpIndex);
 
@@ -278,11 +268,6 @@ function [xc, yc, ok] = computeSpline(wx, wy, n, wpIndex)
         end
     end
 
-    % B-spline basis matrix coefficients
-    % M = (1/6) * [1 -3  3 -1; 4  0 -6  3; 1  3  3 -3; 0  0  0  1]
-    % coefs = M * P  (each row of M applied to [P0, P1, P2, P3])
-    % Result: S(t) = a + b*t + c*t^2 + d*t^3
-
     s = 1/6;
     Px = [P0x; P1x; P2x; P3x];
     Py = [P0y; P1y; P2y; P3y];
@@ -292,58 +277,29 @@ function [xc, yc, ok] = computeSpline(wx, wy, n, wpIndex)
              1,  3,  3, -3;
              0,  0,  0,  1];
 
-    % coeffs = M' * P gives [a; b; c; d]
-    % S(t) = [1 t t^2 t^3] * [a; b; c; d]
     cx_vec = M' * Px;
     cy_vec = M' * Py;
 
-    xc = cx_vec';  % [a, b, c, d]
+    xc = cx_vec';
     yc = cy_vec';
 end
 
 function [t, divFlag] = projectOnSpline(px, py, xc, yc)
 % Bisection search for closest point on spline to (px, py).
-% Solves d/dt |S(t) - pose|^2 = 0  (5th degree polynomial).
-
     ax = xc(1); bx = xc(2); cx = xc(3); dx = xc(4);
     ay = yc(1); by = yc(2); cy = yc(3); dy = yc(4);
 
-    % Build 5th-degree polynomial coefficients of f'(t) = d/dt |S(t)-P|^2
-    % f(t) = (ax + bx*t + cx*t^2 + dx*t^3 - px)^2 + (ay + by*t + cy*t^2 + dy*t^3 - py)^2
-    % f'(t) = 2*(Sx-px)*Sx' + 2*(Sy-py)*Sy'
-    % Expanding: sum of products of polynomials
-
-    % Let ex = ax - px, ey = ay - py  (shift origin)
     ex = ax - px;
     ey = ay - py;
 
-    % Sx(t) - px = ex + bx*t + cx*t^2 + dx*t^3
-    % Sx'(t)     = bx + 2*cx*t + 3*dx*t^2
-    % f'(t)/2    = (ex + bx*t + cx*t^2 + dx*t^3)*(bx + 2*cx*t + 3*dx*t^2)
-    %            + (ey + by*t + cy*t^2 + dy*t^3)*(by + 2*cy*t + 3*dy*t^2)
-
-    % Multiply and collect by power of t (degree 0 to 5):
-    P = zeros(1, 6);  % P(1) = coef of t^0, ..., P(6) = coef of t^5
-
-    % t^0: ex*bx + ey*by
+    P = zeros(1, 6);
     P(1) = ex*bx + ey*by;
-
-    % t^1: 2*ex*cx + bx^2 + 2*ey*cy + by^2
     P(2) = 2*ex*cx + bx^2 + 2*ey*cy + by^2;
-
-    % t^2: 3*ex*dx + 3*bx*cx + 3*ey*dy + 3*by*cy
     P(3) = 3*ex*dx + 3*bx*cx + 3*ey*dy + 3*by*cy;
-
-    % t^3: 4*bx*dx + 2*cx^2 + 4*by*dy + 2*cy^2
     P(4) = 4*bx*dx + 2*cx^2 + 4*by*dy + 2*cy^2;
-
-    % t^4: 5*cx*dx + 5*cy*dy
     P(5) = 5*cx*dx + 5*cy*dy;
-
-    % t^5: 3*dx^2 + 3*dy^2
     P(6) = 3*dx^2 + 3*dy^2;
 
-    % Bisection on [-0.2, 1.2]
     a_val = -0.2;
     b_val =  1.2;
     divFlag = false;
@@ -351,12 +307,9 @@ function [t, divFlag] = projectOnSpline(px, py, xc, yc)
 
     for iter = 1:MAX_ITER
         t_mid = (a_val + b_val) / 2;
-
-        % Evaluate polynomial via Horner
         fa = evalPoly(P, a_val);
         fc = evalPoly(P, t_mid);
 
-        % Convergence
         if abs(fc) < 0.001 && (b_val - a_val)/2 < 0.001
             break;
         end
@@ -376,7 +329,6 @@ function [t, divFlag] = projectOnSpline(px, py, xc, yc)
 end
 
 function val = evalPoly(P, t)
-% Evaluate polynomial P(1) + P(2)*t + ... + P(n)*t^(n-1) via Horner.
     n = numel(P);
     val = P(n);
     for i = n-1:-1:1

@@ -39,6 +39,9 @@ function state = guidance_init(waypoints, varargin)
     state.isReady = false;
     state.status  = 0;          % 0=Inactive, 1=Active, 2=EndOfPath, 3=Diverged
     state.lastAlpha = 0;
+    state.sAccum    = 0;
+    state.lastSx    = NaN;
+    state.lastSy    = NaN;
 
     % Config
     state.cfg.searchRadius      = p.Results.searchRadius;
@@ -48,6 +51,20 @@ function state = guidance_init(waypoints, varargin)
 
     if state.n < 2
         return;
+    end
+
+    % Adiciona 1 waypoint extra no final na direcao tangente do ultimo
+    % segmento. Evita que o phantom mirroring do B-spline force S''=0
+    % no contorno, o que distorce o alpha perto do final do path.
+    wx = waypoints.x(:);  wy = waypoints.y(:);
+    n  = numel(wx);
+    d  = state.cfg.wpDistance;
+    dx = wx(n) - wx(n-1);  dy = wy(n) - wy(n-1);
+    L  = sqrt(dx^2 + dy^2);
+    if L > 1e-6
+        state.wps.x = [wx; wx(n) + d*dx/L];
+        state.wps.y = [wy; wy(n) + d*dy/L];
+        state.n     = n + 1;
     end
 
     state.isReady = true;

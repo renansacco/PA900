@@ -98,13 +98,14 @@ function plotar_cenario(r, ctrl_label)
     title('Erro lateral');
 
     subplot(5,2,2);
-    plot(t, psi_cont, 'DisplayName', 'heading'); hold on;
-    plot(t, psi_ref_cont, '--', 'DisplayName', 'psi_{ref}');
+    hold on;
+    %plot(t, psi_cont, 'DisplayName', 'heading'); 
+    plot(t, psi_ref_cont, '--', 'DisplayName', 'psi_{ref}');hold on;
     if has_beta
         plot(t, course_cont, ':', 'LineWidth', 1.5, 'DisplayName', 'course');
     end
     if has_alpha
-        plot(t, alpha_cont, '-.', 'DisplayName', 'alpha');
+        %plot(t, alpha_cont, '-.', 'DisplayName', 'alpha');
     end
     grid on;
     ylabel('[deg]');
@@ -117,11 +118,16 @@ function plotar_cenario(r, ctrl_label)
     if has_beta
         course_err = rad2deg(wrapToPi(psi_rad + beta - psi_ref_rad));
         plot(t, course_err, ':', 'LineWidth', 1.5, 'DisplayName', 'course - psi_{ref}');
+        e_ang_rms = rms(course_err);
+        e_ang_max = max(abs(course_err));
+    else
+        e_ang_rms = rms(psi_err);
+        e_ang_max = max(abs(psi_err));
     end
     grid on;
     ylabel('[deg]');
     legend('Location', 'best');
-    title('Erro angular');
+    title(sprintf('Erro angular (RMS=%.1f°, max=%.1f°)', e_ang_rms, e_ang_max));
 
     subplot(5,2,4);
     plot(t, r_yaw, 'DisplayName', 'r'); hold on;
@@ -145,7 +151,15 @@ function plotar_cenario(r, ctrl_label)
     title('Angulo de estercamento');
 
     subplot(5,2,7);
-    plot(t, curvature); grid on;
+    plot(t, curvature, 'DisplayName', '\kappa guidance'); hold on;
+    if isfield(r, 'guia')
+        s_approx = cumtrapz(t, vx_sig);
+        kappa_filt = interp1(r.guia.s, r.guia.kappa, s_approx, 'pchip', 0);
+        plot(t, kappa_filt, 'r--', 'LineWidth', 1.2, 'DisplayName', ...
+            sprintf('\\kappa filtrada (fc=%.2f)', r.guia.fc));
+        legend('Location', 'best');
+    end
+    grid on;
     ylabel('\kappa [1/m]');
     title('Curvatura');
 
@@ -180,35 +194,18 @@ function plotar_cenario(r, ctrl_label)
         title('Velocidade lateral');
     end
 
-    %% Figura 3 — Metricas resumo
-    if ~isempty(r.metrics)
-        m = r.metrics;
-        figure('Name', sprintf('Metricas — %s', titulo));
-        sgtitle(titulo, 'Interpreter', 'none');
-
-        subplot(1,2,1);
-        edges = m.e_lat_hist_edges;
-        centers = (edges(1:end-1) + edges(2:end)) / 2;
-        bar(centers*100, m.e_lat_hist_counts, 1, 'FaceColor', [0.3 0.6 0.9]);
-        grid on;
-        xlabel('e_{lat} [cm]');
-        ylabel('count');
-        title(sprintf('Histograma (mean=%.1fcm, max=%.1fcm, rms=%.1fcm)', ...
-            m.e_lat_mean*100, m.e_lat_max*100, m.e_lat_rms*100));
-
-        subplot(1,2,2);
-        labels = {'e_{mean}'; 'e_{max}'; 'e_{rms}'; 'energy'; 'smooth'; ...
-                  'overshoot'; 't_{settle}'; 'sat_{wm}%'; 'sat_{\delta}%'};
-        vals = [m.e_lat_mean*100; m.e_lat_max*100; m.e_lat_rms*100; ...
-                m.ctrl_energy; m.ctrl_smooth; ...
-                m.overshoot*100; m.settling_time; ...
-                m.sat_omegam_pct; m.sat_delta_pct];
-        barh(vals, 'FaceColor', [0.4 0.7 0.5]);
-        set(gca, 'YTick', 1:numel(labels), 'YTickLabel', labels);
-        grid on;
-        xlabel('Valor');
-        title('Metricas');
-    end
+    %% Resumo no console
+    fprintf('\n=== Resumo: %s ===\n', titulo);
+    fprintf('  vx:              %.1f m/s\n', mean(vx_sig));
+    fprintf('  e_lat mean:      %.1f cm\n', mean(abs(e))*100);
+    fprintf('  e_lat max:       %.1f cm\n', max(abs(e))*100);
+    fprintf('  e_lat rms:       %.1f cm\n', rms(e)*100);
+    fprintf('  e_psi rms:       %.2f deg\n', e_ang_rms);
+    fprintf('  e_psi max:       %.2f deg\n', e_ang_max);
+    fprintf('  omega_m max:     %.1f rad/s\n', max(abs(omegam_ref)));
+    fprintf('  delta max:       %.1f deg\n', max(abs(delta_deg)));
+    fprintf('  sat omega_m:     %.1f%%\n', 100*sum(abs(omegam_ref) >= 5.9)/length(t));
+    fprintf('  sat delta:       %.1f%%\n', 100*sum(abs(delta_deg) >= 34)/length(t));
 end
 
 function a = wrapToPi(a)

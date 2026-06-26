@@ -1,0 +1,65 @@
+% init_sim.m — Simulacao closed-loop v2 (init + sim + plot)
+%
+% Carrega parametros, roda modelClosedLoop e plota resultados.
+%
+% Data: 2026-06-09 | Autor: Renan / Claude
+
+clear; close all;
+
+%% Paths
+simDir     = fileparts(mfilename('fullpath'));
+versionDir = fullfile(simDir, '..');
+proj_root  = fullfile(versionDir, '..', '..');
+
+addpath(fullfile(versionDir, 'ERT'));
+
+%% Parametros do veiculo
+params = load(fullfile(proj_root, 'Planta', 'params', 'param_MF6713.mat'));
+
+%% Guidance
+Ts_guidance = 0.05;
+useCourse = 1;
+wpDistance = 1;
+
+tmp = load(fullfile(proj_root, 'Guidance', 'trajetorias', 'guias', 'taipas_boeck.mat'));
+guia = tmp.guia;
+
+wps_original = struct('x', guia.x, 'y', guia.y);
+wps = resample_waypoints(wps_original, wpDistance);
+
+%% Condicoes iniciais da planta
+X0 = zeros(7, 1);
+X0(1) = wps.x(1);
+X0(2) = wps.y(1);
+X0(3) = atan2(wps.y(2) - wps.y(1), wps.x(2) - wps.x(1));
+
+%% Velocidade longitudinal (m/s)
+vx = 2.0;
+
+%% Parametros do Controller (buses, gains, etc.)
+Param_Controller;
+
+%% Tempo de simulacao
+pathLen = sum(sqrt(diff(wps.x).^2 + diff(wps.y).^2));
+Tsim = ceil(pathLen / vx) + 10;
+
+fprintf('Closed-loop v2: vx=%.1f m/s | Tsim=%.0f s | pathLen=%.0f m\n', vx, Tsim, pathLen);
+
+%% Roda simulacao
+modelName = 'modelClosedLoop';
+load_system(modelName);
+out = sim(modelName);
+fprintf('Simulacao concluida.\n');
+
+%% Plot (usa plotar_cenario do Benchmark)
+r.out          = out;
+r.wps          = wps;
+r.wps_original = wps_original;
+r.wpDistance    = wpDistance;
+r.traj_name    = 'taipas_boeck';
+r.ic_name      = 'alinhado';
+r.vx           = vx;
+r.useCourse    = useCourse;
+r.guia         = guia;
+r.metrics      = [];
+plotar_cenario(r);
