@@ -13,6 +13,9 @@ proj_root  = fullfile(versionDir, '..', '..');
 
 addpath(fullfile(versionDir, 'ERT'));
 
+%% Agressividade: 1=suave, 2=padrao, 3=agressivo
+aggr_idx = 3;
+aggr_names = {'suave', 'padrao', 'agressivo'};
 
 pathName = 'taipas_boeck.mat';
 %% Parametros do veiculo
@@ -36,16 +39,18 @@ X0(2) = wps.y(1);
 X0(3) = atan2(wps.y(2) - wps.y(1), wps.x(2) - wps.x(1));
 
 %% Velocidade longitudinal (m/s)
-vx = 3.5;
+vx = 2;
 
 %% Parametros do Controller (buses, gains, etc.)
 Param_Controller;
+userParameters.Value.curveAggressiveness = aggr_idx;
 
 %% Tempo de simulacao
 pathLen = sum(sqrt(diff(wps.x).^2 + diff(wps.y).^2));
 Tsim = ceil(pathLen / vx);
 
-fprintf('Closed-loop v2: vx=%.1f m/s | Tsim=%.0f s | pathLen=%.0f m\n', vx, Tsim, pathLen);
+fprintf('Closed-loop v2 [%s]: vx=%.1f m/s | Tsim=%.0f s | pathLen=%.0f m\n', ...
+    aggr_names{aggr_idx}, vx, Tsim, pathLen);
 
 %% Roda simulacao
 modelName = 'modelClosedLoop_v2';
@@ -65,5 +70,6 @@ r.useCourse    = useCourse;
 r.guia         = guia;
 r.metrics      = [];
 r.version      = 'v2';
+r.aggr_name    = aggr_names{aggr_idx};
 r.omegam_sat   = double(Controlador.Value.Curva.omegam_sat);
 plotar_cenario(r);

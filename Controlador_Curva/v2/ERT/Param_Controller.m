@@ -21,7 +21,7 @@ steerCalibration.CoderInfo.StorageClass = 'Model default';
 %% Parametros do usu�rio
 userParameters = Simulink.Parameter;
 userParameters.DataType = 'Bus: controllerParameterBus_t';
-userParameters.Value = struct('modelPlant', 1, 'vehicleMode', ModoVeiculo.None, 'straightAggressiveness', 4, 'curveAggressiveness', 1, 'isCurveMode', false);
+userParameters.Value = struct('modelPlant', 1, 'vehicleMode', ModoVeiculo.None, 'straightAggressiveness', 4, 'curveAggressiveness', 2, 'isCurveMode', false);
 userParameters.CoderInfo.StorageClass = 'Model default';
 
 
@@ -31,10 +31,13 @@ Controlador.Value.Ts = 0.05;
 
 param_curva = load('Curva_Gains_Linear.mat');
 
-Controlador.Value.Curva.Gains = single(param_curva.Gains_Curva);
+Controlador.Value.Curva.Gains = single(param_curva.Gains_Curva);     % (n_vx, 2, 3) — dim3 = agressividade
 Controlador.Value.Curva.v_index = single(param_curva.vx_table);
 Controlador.Value.Curva.omegam_sat = single(15);
-Controlador.Value.Curva.T_look = param_curva.cfg.T_look;
+
+Controlador.Value.Curva.T_look = single(param_curva.T_look);         % (1, 3)
+Controlador.Value.Curva.DeltaMin = 2;
+Controlador.Value.Curva.DeltaMax = 8;
 
 %% Controlador de curva — CME legado (teste comparativo)
 % Ks_cme = [0.1817   1    0.1089   1];

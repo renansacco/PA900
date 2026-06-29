@@ -24,7 +24,9 @@ function plotar_cenario(r, ctrl_label)
             titulo = sprintf('%s | heading', titulo);
         end
     end
-    if isfield(r, 'version')
+    if isfield(r, 'version') && isfield(r, 'aggr_name')
+        titulo = sprintf('[%s | %s] %s', r.version, r.aggr_name, titulo);
+    elseif isfield(r, 'version')
         titulo = sprintf('[%s] %s', r.version, titulo);
     end
     if ~isempty(ctrl_label)

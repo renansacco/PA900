@@ -1,23 +1,47 @@
-function cfg = config_curva()
-% Configuracao compartilhada do projeto de controlador de curva.
-% Usado por Projeto_Curva_Linear.m e varredura_velocidade.m.
+function cfg = config_curva(aggr_idx)
+% Configuracao do projeto de controlador de curva v2.
+%
+%   cfg = config_curva()        â€” retorna config padrao (aggr_idx=2)
+%   cfg = config_curva(aggr_idx) â€” 1=suave, 2=padrao, 3=agressivo
 
-cfg.gamma0    = deg2rad(5);    % step de heading de projeto [rad]
-cfg.tsim      = 15;             % tempo de simulacao [s]
-cfg.omega_sat = 8;              % saturacao omega_m [rad/s]
-cfg.X0        = zeros(7, 1);    % equilibrio
-cfg.Pm_min    = 35;             % margem de fase minima [deg]
+if nargin < 1, aggr_idx = 2; end
 
-cfg.T_look = 2; % Tlook em segundos - define a malha externa e tau_mf_targer
+cfg.aggr_names = {'suave', 'padrao', 'agressivo'};
+cfg.aggr_idx   = aggr_idx;
+cfg.aggr_name  = cfg.aggr_names{aggr_idx};
 
-cfg.Ms_max    = 0; %1.6;           % pico de sensibilidade max |S|  (1.4 p/ ~PM45)
+%% Parametros comuns
+cfg.gamma0    = deg2rad(5);
+cfg.tsim      = 15;
+cfg.X0        = zeros(7, 1);
+%cfg.Pm_min    = 35;
+cfg.Ms_max    = 0;
 cfg.tau_mf_tol = 0.20;
-cfg.tau_mf_target  = 0; %0.6;          % tau_MF maximo [s]
 
+switch aggr_idx
+    case 1  % suave
+        cfg.Q_psi         = 1.0 / deg2rad(8)^2;
+        cfg.Q_r           = 1.0 / deg2rad(30)^2;
+        cfg.omega_sat     = 7;
+        cfg.R_ctrl        = 1.0 / cfg.omega_sat^2;
+        cfg.T_look        = 2;
+        cfg.tau_mf_target = 0;
 
-% Pesos da função de custo
-cfg.R_ctrl    = 1.0 / cfg.omega_sat^2;
-cfg.Q_psi     = 1.0 / deg2rad(5)^2;       
-cfg.Q_r   = 1 / deg2rad(30)^2; % yaw rate maximo toleravel [rad/s]
+    case 2  % padrao
+        cfg.Q_psi         = 1.0 / deg2rad(8)^2;
+        cfg.Q_r           = 1.0 / deg2rad(30)^2;
+        cfg.omega_sat     = 9;
+        cfg.R_ctrl        = 1.0 / cfg.omega_sat^2;
+        cfg.T_look        = 2;
+        cfg.tau_mf_target = 0;
+
+    case 3  % agressivo
+        cfg.Q_psi         = 1.0 / deg2rad(8)^2;
+        cfg.Q_r           = 1.0 / deg2rad(30)^2;
+        cfg.omega_sat     = 11;
+        cfg.R_ctrl        = 1.0 / cfg.omega_sat^2;
+        cfg.T_look        = 2;
+        cfg.tau_mf_target = 0;
+end
 
 end

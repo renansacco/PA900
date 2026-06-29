@@ -1,8 +1,7 @@
-%% Varredura de velocidades — mapa de ganhos do controlador de curva
+%% Varredura de velocidades x agressividade — mapa de ganhos v2
 %
-% Otimiza [K_psi, K_r] para cada vx.
-% Referencia: step de heading gamma0.
-% Config carregada de config_curva.m.
+% Otimiza [K_psi, K_r] para cada (vx, agressividade).
+% Salva Gains_Curva(n_vx, 2, 3) em Curva_Gains_Linear.mat.
 
 clear; close all;
 
@@ -10,134 +9,150 @@ clear; close all;
 proj_root = fullfile(fileparts(mfilename('fullpath')), '..', '..', '..');
 addpath(fullfile(proj_root, 'Planta'));
 
-%% Planta e config
+%% Planta
 p = load(fullfile(proj_root, 'Planta', 'params', 'param_MF6713.mat'));
-cfg = config_curva();
 
 %% Varredura
 vx_sweep = 0.5:0.5:4.0;
 n_vx = length(vx_sweep);
+n_aggr = 3;
 
-res = struct('vx', {}, 'K_psi', {}, 'K_r', {}, 'J', {}, ...
-    'Pm', {}, 'tau_mf', {}, 'w_bw', {}, 'ts', {}, 'Mp', {}, ...
-    'umax', {}, 'usat', {});
+Gains_Curva = zeros(n_vx, 2, n_aggr);
+T_look      = zeros(1, n_aggr);
+cfgs        = cell(1, n_aggr);
+aggr_names  = {'suave', 'padrao', 'agressivo'};
+colors_aggr = {'b', 'k', 'r'};
 
-Ks0 = [30, 40];
-opts = optimset('Display', 'iter', 'MaxIter', 50, 'TolX', 1e-8);
+res_all = cell(1, n_aggr);
 
-for k = 1:n_vx
-    vx = vx_sweep(k);
+for ia = 1:n_aggr
+    cfg = config_curva(ia);
+    cfgs{ia} = cfg;
+    T_look(ia) = cfg.T_look;
 
-    fprintf('\n========================================\n');
-    fprintf('  vx = %.1f m/s\n', vx);
-    fprintf('========================================\n');
+    fprintf('\n############################################################\n');
+    fprintf('  AGRESSIVIDADE: %s (idx=%d)\n', cfg.aggr_name, ia);
+    fprintf('  Q_psi=%.2f  Q_r=%.4f  R_ctrl=%.4f  T_look=%.1f  omega_sat=%.0f\n', ...
+        cfg.Q_psi, cfg.Q_r, cfg.R_ctrl, cfg.T_look, cfg.omega_sat);
+    fprintf('############################################################\n');
 
-    % Otimizacao
-    cfg.plot = false;
-    [Ks, Jopt] = fminsearch(@(ks) objetivo_curva(ks, p, vx, cfg), Ks0, opts);
+    Ks0 = [30, 40];
+    opts = optimset('Display', 'final', 'MaxIter', 100, 'TolX', 1e-8);
 
-    fprintf('\n=== Resultado vx=%.1f ===\n', vx);
-    fprintf('  K_psi = %.4f\n', Ks(1));
-    fprintf('  K_r   = %.4f\n', Ks(2));
-    fprintf('  J     = %.6f\n', Jopt);
+    res = struct('vx', {}, 'K_psi', {}, 'K_r', {}, 'J', {}, ...
+        'Pm', {}, 'tau_mf', {}, 'w_bw', {}, 'ts', {}, 'Mp', {}, ...
+        'umax', {}, 'usat', {});
 
-    % Simula resultado final com plot
-    cfg.plot = true;
-    [~, t, X, U] = objetivo_curva(Ks, p, vx, cfg);
-    set(gcf, 'Name', sprintf('Simulacao vx=%.0f', vx));
+    for k = 1:n_vx
+        vx = vx_sweep(k);
 
-    % Metricas
-    gamma0 = cfg.gamma0;
-    e_psi = gamma0 - X(:, 3);
-    info.ts       = settling_time(t, e_psi, 0.02 * abs(gamma0));
-    info.Mp       = max(0, max(X(:,3)) - gamma0) / abs(gamma0);
-    info.umax     = max(abs(U(:,1)));
-    info.usat_pct = 100 * sum(abs(U(:,1)) >= cfg.omega_sat * 0.99) / length(t);
+        fprintf('\n--- %s | vx = %.1f m/s ---\n', cfg.aggr_name, vx);
 
-    fprintf('\n=== Desempenho vx=%.1f ===\n', vx);
-    fprintf('  Settling time (2%%): %.2f s\n', info.ts);
-    fprintf('  Overshoot:          %.1f%%\n', info.Mp * 100);
-    fprintf('  omega_m max:        %.1f rad/s\n', info.umax);
-    fprintf('  Saturacao:          %.1f%% do tempo\n', info.usat_pct);
+        cfg.plot = false;
+        [Ks, Jopt] = fminsearch(@(ks) objetivo_curva(ks, p, vx, cfg), Ks0, opts);
 
-    % Analise MF
-    mf = analise_malha_fechada(p, vx, Ks, cfg);
+        cfg.plot = false;
+        [~, t, X, U] = objetivo_curva(Ks, p, vx, cfg);
 
-    % Salva resultados
-    res(k).vx = vx;
-    res(k).K_psi = Ks(1);
-    res(k).K_r = Ks(2);
-    res(k).J = Jopt;
-    res(k).Pm = mf.Pm;
-    res(k).tau_mf = mf.tau_mf;
-    res(k).w_bw = mf.w_bw;
-    res(k).ts = info.ts;
-    res(k).Mp = info.Mp;
-    res(k).umax = info.umax;
-    res(k).usat = info.usat_pct;
+        gamma0 = cfg.gamma0;
+        e_psi = gamma0 - X(:, 3);
+        info.ts       = settling_time(t, e_psi, 0.02 * abs(gamma0));
+        info.Mp       = max(0, max(X(:,3)) - gamma0) / abs(gamma0);
+        info.umax     = max(abs(U(:,1)));
+        info.usat_pct = 100 * sum(abs(U(:,1)) >= cfg.omega_sat * 0.99) / length(t);
 
-    Ks0 = Ks;
+        mf = analise_malha_fechada(p, vx, Ks, cfg);
+
+        res(k).vx     = vx;
+        res(k).K_psi  = Ks(1);
+        res(k).K_r    = Ks(2);
+        res(k).J      = Jopt;
+        res(k).Pm     = mf.Pm;
+        res(k).tau_mf = mf.tau_mf;
+        res(k).w_bw   = mf.w_bw;
+        res(k).ts     = info.ts;
+        res(k).Mp     = info.Mp;
+        res(k).umax   = info.umax;
+        res(k).usat   = info.usat_pct;
+
+        Gains_Curva(k, :, ia) = [Ks(1), Ks(2)];
+        Ks0 = Ks;
+
+        fprintf('  K_psi=%.2f  K_r=%.2f  J=%.4f  Pm=%.1f  tau=%.3f  ts=%.2f\n', ...
+            Ks(1), Ks(2), Jopt, mf.Pm, mf.tau_mf, info.ts);
+    end
+
+    res_all{ia} = res;
+
+    %% Tabela resumo por agressividade
+    fprintf('\n============================================================\n');
+    fprintf('  RESUMO [%s] — gamma0=%.0f deg, omega_sat=%.0f\n', ...
+        cfg.aggr_name, rad2deg(cfg.gamma0), cfg.omega_sat);
+    fprintf('============================================================\n');
+    fprintf('%5s %7s %7s %6s %8s %8s %6s %6s\n', ...
+        'vx', 'K_psi', 'K_r', 'Pm', 'tau_mf', 'w_bw', 'ts', 'Mp%');
+    for k = 1:n_vx
+        fprintf('%5.1f %7.2f %7.2f %6.1f %8.3f %8.2f %6.2f %5.1f\n', ...
+            res(k).vx, res(k).K_psi, res(k).K_r, ...
+            res(k).Pm, res(k).tau_mf, res(k).w_bw, ...
+            res(k).ts, res(k).Mp*100);
+    end
 end
 
-%% Tabela resumo
-fprintf('\n\n============================================================\n');
-fprintf('  RESUMO — gamma0=%.0f deg, tau_mf_max=%.2f s\n', ...
-    rad2deg(cfg.gamma0), cfg.tau_mf_target);
-fprintf('============================================================\n');
-fprintf('%5s %7s %7s %6s %8s %8s %6s %6s\n', ...
-    'vx', 'K_psi', 'K_r', 'Pm', 'tau_mf', 'w_bw', 'ts', 'Mp%');
-for k = 1:n_vx
-    fprintf('%5.1f %7.2f %7.2f %6.1f %8.3f %8.2f %6.2f %5.1f\n', ...
-        res(k).vx, res(k).K_psi, res(k).K_r, ...
-        res(k).Pm, res(k).tau_mf, res(k).w_bw, ...
-        res(k).ts, res(k).Mp*100);
-end
-
-%% Figura resumo
-figure('Name', 'Resumo vs vx');
+%% Figura resumo comparativa
+figure('Name', 'Comparacao agressividades');
 
 subplot(2,2,1);
-plot([res.vx], [res.Pm], 'ko-', 'LineWidth', 1.5, 'MarkerFaceColor', 'k');
-yline(cfg.Pm_min, 'r--', sprintf('Pm_{min}=%d°', cfg.Pm_min));
+for ia = 1:n_aggr
+    res = res_all{ia};
+    plot([res.vx], [res.Pm], [colors_aggr{ia} 'o-'], 'LineWidth', 1.5, ...
+        'MarkerFaceColor', colors_aggr{ia}, 'DisplayName', aggr_names{ia}); hold on;
+end
 ylabel('Pm [deg]'); xlabel('v_x [m/s]'); grid on;
-title('Margem de fase');
+legend('Location', 'best'); title('Margem de fase');
 
 subplot(2,2,2);
-plot([res.vx], [res.tau_mf], 'ko-', 'LineWidth', 1.5, 'MarkerFaceColor', 'k');
-yline(cfg.tau_mf_target, 'r--', sprintf('\\tau_{max}=%.2fs', cfg.tau_mf_target));
+for ia = 1:n_aggr
+    res = res_all{ia};
+    plot([res.vx], [res.tau_mf], [colors_aggr{ia} 'o-'], 'LineWidth', 1.5, ...
+        'MarkerFaceColor', colors_aggr{ia}, 'DisplayName', aggr_names{ia}); hold on;
+end
 ylabel('\tau_{MF} [s]'); xlabel('v_x [m/s]'); grid on;
-title('Constante de tempo MF');
+legend('Location', 'best'); title('Constante de tempo MF');
 
 subplot(2,2,3);
-plot([res.vx], [res.K_psi], 'bo-', 'LineWidth', 1.5, 'MarkerFaceColor', 'b'); hold on;
-plot([res.vx], [res.K_r], 'rs-', 'LineWidth', 1.5, 'MarkerFaceColor', 'r');
+for ia = 1:n_aggr
+    res = res_all{ia};
+    plot([res.vx], [res.K_psi], [colors_aggr{ia} 'o-'], 'LineWidth', 1.5, ...
+        'DisplayName', sprintf('K_{\\psi} %s', aggr_names{ia})); hold on;
+    plot([res.vx], [res.K_r], [colors_aggr{ia} 's--'], 'LineWidth', 1, ...
+        'DisplayName', sprintf('K_r %s', aggr_names{ia}));
+end
 ylabel('Ganho'); xlabel('v_x [m/s]'); grid on;
-legend('K_\psi', 'K_r', 'Location', 'best');
-title('Ganhos otimizados');
+legend('Location', 'best'); title('Ganhos otimizados');
 
 subplot(2,2,4);
-plot([res.vx], [res.umax], 'ko-', 'LineWidth', 1.5, 'MarkerFaceColor', 'k');
-yline(cfg.omega_sat, 'r--', '\omega_{sat}');
+for ia = 1:n_aggr
+    res = res_all{ia};
+    cfg_ia = cfgs{ia};
+    plot([res.vx], [res.umax], [colors_aggr{ia} 'o-'], 'LineWidth', 1.5, ...
+        'MarkerFaceColor', colors_aggr{ia}, 'DisplayName', aggr_names{ia}); hold on;
+    yline(cfg_ia.omega_sat, [colors_aggr{ia} ':'], 'HandleVisibility', 'off');
+end
 ylabel('\omega_m max [rad/s]'); xlabel('v_x [m/s]'); grid on;
-title('Pico de atuacao');
+legend('Location', 'best'); title('Pico de atuacao');
 
-sgtitle(sprintf('Varredura vx — \\gamma_0=%.0f°, \\tau_{mf,max}=%.2fs', ...
-    rad2deg(cfg.gamma0), cfg.tau_mf_target));
+sgtitle(sprintf('Varredura v2 — \\gamma_0=%.0f° — suave / padrao / agressivo', ...
+    rad2deg(cfgs{1}.gamma0)));
 
 %% Salva mapa de ganhos
 vx_table = vx_sweep;
-Gains_Curva = zeros(n_vx, 2);
-for k = 1:n_vx
-    Gains_Curva(k, :) = [res(k).K_psi, res(k).K_r];
-end
-
-Desc = sprintf('Ganhos lineares curva. gamma0=%.0f deg, omega_sat=%.0f rad/s, Pm_min=%.0f deg, tau_mf_max=%.2fs', ...
-    rad2deg(cfg.gamma0), cfg.omega_sat, cfg.Pm_min, cfg.tau_mf_target);
-
 gains_dir = fullfile(fileparts(mfilename('fullpath')), '..', 'ERT', 'gains');
 name = fullfile(gains_dir, 'Curva_Gains_Linear.mat');
-save(name, 'Gains_Curva', 'vx_table', 'Desc', 'cfg');
+save(name, 'Gains_Curva', 'vx_table', 'T_look', 'aggr_names', 'cfgs');
 fprintf('\nGanhos salvos em: %s\n', name);
+fprintf('  Gains_Curva: [%d x %d x %d]  (vx x ganhos x agressividade)\n', size(Gains_Curva));
+fprintf('  T_look: [%.1f, %.1f, %.1f]\n', T_look);
 
 %% -----------------------------------------------------------------------
 function ts = settling_time(t, e, tol)
@@ -184,8 +199,4 @@ function mf = analise_malha_fechada(p, vx, Ks, cfg)
     mf.Pm = Pm;
     mf.w_bw = w_bw;
     mf.tau_mf = 1 / w_bw;
-
-    fprintf('\n=== Malha Fechada (vx=%.1f) ===\n', vx);
-    fprintf('  Bandwidth: %.2f rad/s, tau_MF: %.3f s\n', w_bw, 1/w_bw);
-    fprintf('  Pm: %.1f deg\n', Pm);
 end

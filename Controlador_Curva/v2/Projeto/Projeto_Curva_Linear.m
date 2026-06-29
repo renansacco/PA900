@@ -12,22 +12,18 @@ addpath(fullfile(proj_root, 'Planta'));
 
 %% Planta e config
 p = load(fullfile(proj_root, 'Planta', 'params', 'param_MF6713.mat'));
-cfg = config_curva();
+
+aggr_idx = 2;  % 1=suave, 2=padrao, 3=agressivo
+cfg = config_curva(aggr_idx);
 
 %% Caso a simular
 vx = 2.0;
 
-fprintf('=== Configuracao ===\n');
+fprintf('=== Configuracao [%s] ===\n', cfg.aggr_name);
 fprintf('  vx=%.1f m/s\n', vx);
 fprintf('  gamma0=%.1f deg (step)\n', rad2deg(cfg.gamma0));
-
 fprintf('  Q_psi=%.2f, Q_r=%.2f, R=%.4f\n', cfg.Q_psi, cfg.Q_r, cfg.R_ctrl);
-fprintf('  Pm_min=%.0f deg, omega_sat=%.0f rad/s\n', cfg.Pm_min, cfg.omega_sat);
-
-fprintf('  tau_mf_target=%.2f s (omega_bw_alvo=%.2f rad/s)\n', ...
-    cfg.tau_mf_target, 1/cfg.tau_mf_target);
-...
-fprintf('  Ms_max=%.1f, omega_sat=%.0f rad/s\n', cfg.Ms_max, cfg.omega_sat);
+fprintf('  omega_sat=%.0f rad/s, T_look=%.1f s\n', cfg.omega_sat, cfg.T_look);
 %% Otimizacao
 Ks0 = [30, 40];
 opts = optimset('Display', 'iter', 'MaxIter', 50, 'TolX', 1e-8);
@@ -189,7 +185,7 @@ function mf = analise_malha_fechada(p, vx, Ks, cfg)
     legend('MF', 'MA', 'Location', 'best');
     title('Polos');
 
-    sgtitle(sprintf('Malha Fechada — K_{\\psi}=%.1f, K_r=%.1f, v_x=%.1f m/s', ...
-        K_psi, K_r, vx));
+    sgtitle(sprintf('Malha Fechada — K_{\\psi}=%.1f, K_r=%.1f, v_x=%.1f m/s [%s]', ...
+        K_psi, K_r, vx, cfg.aggr_name));
 end
 

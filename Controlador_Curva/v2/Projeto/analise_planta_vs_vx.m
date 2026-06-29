@@ -11,7 +11,9 @@ proj_root = fullfile(fileparts(mfilename('fullpath')), '..', '..', '..');
 addpath(fullfile(proj_root, 'Planta'));
 p = load(fullfile(proj_root, 'Planta', 'params', 'param_MF6713.mat'));
 
-[cfg, gamma0_design, T_look] = config_curva();
+cfg = config_curva();
+gamma0_design = cfg.gamma0;
+T_look = cfg.T_look;
 
 vx_list = [1, 2, 3, 4];
 colors = lines(length(vx_list));
